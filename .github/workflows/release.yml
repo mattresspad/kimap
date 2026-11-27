@@ -2,12 +2,20 @@ name: Preview and publish map
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '.github/workflows/release.yml'
+      - 'checks/release.mjs'
+      - 'docs/releases.md'
   workflow_dispatch:
     inputs:
       expected_sha:
-        description: Current main commit to preview
+        description: Commit SHA to preview or verify
         required: true
         type: string
+      verify_run_id:
+        description: Existing production run ID for a read-only traffic check (leave blank for a release)
+        type: string
+        required: false
 permissions:
   contents: read
 env:
@@ -15,7 +23,7 @@ env:
 jobs:
   preview:
     name: Verify inactive map version
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && !inputs.verify_run_id
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     concurrency:
@@ -82,7 +90,7 @@ jobs:
         with:
           name: map-preview-${{ github.sha }}
           path: artifacts/release
-      - name: Promote exact version and verify live delivery
+      - name: Promote approved version and confirm 100% traffic
         env:
           GITHUB_TOKEN: ${{ github.token }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -95,3 +103,32 @@ jobs:
           path: artifacts/release/production.json
           if-no-files-found: ignore
           retention-days: 90
+
+  verify-traffic:
+    name: Confirm existing production traffic
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.verify_run_id != ''
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: map-live-${{ inputs.expected_sha }}
+          path: artifacts/release
+          run-id: ${{ inputs.verify_run_id }}
+          github-token: ${{ github.token }}
+      - name: Confirm approved version at 100%
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: node checks/release.mjs verify-traffic

@@ -6,7 +6,11 @@ After merge, [Preview and publish map](https://github.com/mattresspad/kimap/acti
 
 Before approval, use a local checkout at the commit shown in the summary. Run `npm ci` and install Chromium with `npm exec -- playwright install chromium`, or select an installed browser with `PLAYWRIGHT_CHANNEL`. Run the summary’s `node checks/published.mjs <version-url>` command. It checks the real Vanilla map, landmark files, and desktop and phone interactions. A nonzero exit leaves the candidate pending investigation.
 
-After the local check exits successfully for that exact candidate, Prd can select **Review deployments**, choose **production**, and approve. Promotion checks main, the package annotation, the previous deployment and the Vanilla publication again. It assigns traffic to the tested version and verifies HTML, JS, CSS, the decoder, the favicon, Vanilla data and artwork at map.kenshi.wiki. A changed branch, changed publication or intervening deployment requires a new preview.
+After the local check exits successfully for that exact candidate, Prd can select **Review deployments**, choose **production**, and approve. Promotion checks main, the package annotation, the previous deployment and the Vanilla publication again. It assigns traffic to the tested version and confirms through the Cloudflare API that the approved Worker version receives 100% of traffic. The production receipt records the observed deployment ID and percentages. A changed branch, changed publication or intervening deployment requires a new preview.
+
+After promotion, download and extract the map-live artifact. From a checkout with the browser checks installed, run `node checks/release.mjs verify-live <path-to-production.json>`. It compares live shell and Vanilla publication hashes with the preview receipt and runs the full live desktop and phone checks.
+
+To recheck traffic without deploying, manually run the release workflow on main with the deployed commit SHA and its production run ID. Changes limited to this workflow, its release script, or this guide run CI without starting a shell release.
 
 The repository uses the Actions secret CLOUDFLARE_API_TOKEN for Worker version and deployment operations and the variable CLOUDFLARE_ACCOUNT_ID for account selection. The production environment is restricted to protected branches and requires mattresspad. The generic workers.dev address serves the active map. Only the version-specific URL in the receipt identifies the tested candidate.
 

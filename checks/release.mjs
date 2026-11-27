@@ -185,41 +185,63 @@ async function promote() {
     "--versions",
     JSON.stringify(versions)
   );
-  const deployed = latest();
-  await save("production.json", {
-    ...receipt,
-    deployment: deployed.id,
-    versions: deployed.versions,
-    liveVerified: false
-  });
-  assert.deepEqual(deployed.versions, versions);
+  await verifyTraffic(receipt, true);
+}
+
+async function verifyTraffic(receipt, recordDeployment = false) {
+  assert.equal(receipt.worker, worker);
+  assert.equal(receipt.commit, env.EXPECTED_SHA);
   for (let attempt = 0; attempt < 8; attempt++) {
-    try {
-      assert.deepEqual(await checkPublished(live, receipt), receipt.data);
+    const deployment = latest();
+    const confirmed =
+      deployment.versions.length === 1 &&
+      deployment.versions[0].version_id === receipt.version &&
+      deployment.versions[0].percentage === 100;
+    if (recordDeployment) {
       await save("production.json", {
         ...receipt,
-        deployment: deployed.id,
-        versions,
-        liveVerified: true
+        deployment: deployment.id,
+        versions: deployment.versions,
+        trafficVerified: confirmed
       });
+    }
+    if (confirmed) {
       await appendFile(
         env.GITHUB_STEP_SUMMARY,
-        "## Published map\n\n[Live site](" +
-          live +
-          ") · version `" +
-          receipt.version +
-          "` · recovery version `" +
-          receipt.previousVersion +
-          "`.\n"
+        [
+          "## Production traffic verified",
+          "",
+          `Cloudflare reports 100% of traffic on ${worker} version ${receipt.version}.`,
+          `Deployment ${deployment.id}. Commit ${receipt.commit}. Recovery version ${receipt.previousVersion}.`,
+          "",
+          "Download production.json from the map-live artifact and run the live checks locally:",
+          "",
+          "```sh",
+          "node checks/release.mjs verify-live production.json",
+          "```",
+          ""
+        ].join("\n")
       );
       return;
-    } catch (error) {
-      if (attempt === 7) throw error;
-      await sleep(5000);
     }
+    if (attempt < 7) await sleep(5000);
   }
+  throw Error("Cloudflare did not report the approved version at 100% of traffic.");
+}
+
+async function verifyLive(path) {
+  const receipt = JSON.parse(await readFile(path, "utf8"));
+  assert.equal(receipt.worker, worker);
+  assert.deepEqual(
+    await checkPublished(live, receipt),
+    receipt.data,
+    "Live publication differs from preview"
+  );
+  execFileSync(process.execPath, [join(root, "checks/published.mjs"), live], { stdio: "inherit" });
 }
 const command = process.argv[2];
 if (command === "stage") await stage();
 else if (command === "promote") await promote();
-else throw Error("Choose stage or promote.");
+else if (command === "verify-traffic") await verifyTraffic(await load("production.json"));
+else if (command === "verify-live") await verifyLive(process.argv[3]);
+else throw Error("Choose stage, promote, verify-traffic, or verify-live.");
