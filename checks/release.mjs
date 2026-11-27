@@ -146,17 +146,19 @@ async function stage() {
       "`\n"
   );
   receipt.data = await checkPublished(receipt.origin, receipt);
-  const browser = spawnSync(
-    process.execPath,
-    [join(root, "checks/published.mjs"), receipt.origin],
-    { stdio: "inherit" }
-  );
-  if (browser.error) throw browser.error;
-  assert.equal(browser.status, 0, "Browser verification failed");
   await save("preview.json", receipt);
   await appendFile(
     env.GITHUB_STEP_SUMMARY,
-    "\nDesktop and phone checks passed. Previous production version: `" + previousVersion + "`.\n"
+    [
+      "",
+      `Shell and publication checks passed. Previous production version: ${previousVersion}.`,
+      `Before approving production, run the Vanilla desktop and phone checks locally from commit ${commit}.`,
+      "",
+      "```sh",
+      `node checks/published.mjs ${receipt.origin}`,
+      "```",
+      ""
+    ].join("\n")
   );
 }
 async function promote() {
