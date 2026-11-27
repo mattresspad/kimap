@@ -1,0 +1,96 @@
+name: Preview and publish map
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Current main commit to preview
+        required: true
+        type: string
+permissions:
+  contents: read
+env:
+  EXPECTED_SHA: ${{ inputs.expected_sha || github.sha }}
+jobs:
+  preview:
+    name: Verify inactive map version
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    concurrency:
+      group: map-preview
+      cancel-in-progress: true
+    outputs:
+      origin: ${{ steps.stage.outputs.origin }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run worker:build
+      - run: npm run package:check
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: map-package-${{ github.sha }}
+          path: worker/.cloudflare/output/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+      - run: npm exec -- playwright install --with-deps chromium
+      - id: stage
+        name: Upload inactive version and verify the actual Vanilla map
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: node checks/release.mjs stage
+      - if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: map-preview-${{ github.sha }}
+          path: artifacts/release/preview.json
+          if-no-files-found: ignore
+          retention-days: 90
+  publish:
+    name: Approve and publish the verified version
+    needs: preview
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: production
+      url: ${{ needs.preview.outputs.origin }}
+    concurrency:
+      group: map-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: map-preview-${{ github.sha }}
+          path: artifacts/release
+      - name: Promote exact version and verify live delivery
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: node checks/release.mjs promote
+      - if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: map-live-${{ github.sha }}
+          path: artifacts/release/production.json
+          if-no-files-found: ignore
+          retention-days: 90
