@@ -1,0 +1,81 @@
+/* kimap/modules/global-settings.css */
+
+/* 1. The Container (The Pane) */
+#global-settings-content {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 280px 1fr; /* Sidebar | Content */
+    overflow: hidden; /* Pane handles the scroll */
+}
+
+/* 2. Sidebar (Categories) */
+.settings-sidebar {
+    background-color: var(--pico-background-color);
+    border-right: 1px solid var(--pico-muted-border-color);
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.settings-category-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    background: none;
+    border: none;
+    color: var(--pico-muted-color);
+    cursor: pointer;
+    border-radius: var(--pico-border-radius);
+    margin-bottom: 0.25rem;
+    transition: all 0.2s;
+}
+
+.settings-category-btn:hover {
+    background-color: var(--pico-card-background-color);
+    color: var(--pico-color);
+}
+
+.settings-category-btn.active {
+    background-color: var(--pico-primary);
+    color: white;
+}
+
+/* 3. Main Content Area (The Inputs) */
+.settings-main {
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.setting-group {
+    background-color: var(--pico-card-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.setting-group h4 {
+    margin-top: 0;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    color: var(--pico-primary);
+}
+
+/* Grid for Label + Input pairs */
+.setting-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.setting-row label {
+    font-size: 0.9em;
+    color: var(--pico-color);
+}
+
+.setting-row input {
+    margin-bottom: 0; /* Override Pico default */
+}

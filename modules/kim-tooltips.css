@@ -1,0 +1,96 @@
+/* kim-tooltips.css */
+
+/* 1. The Logic Class (Apply this to ANYTHING you want to have a tooltip) */
+.help-trigger {
+    cursor: help;
+}
+
+/* 2. The Visual Badge (Apply this ONLY if you want the small '?' circle) */
+.help-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background-color: var(--pico-muted-border-color);
+    color: var(--pico-background-color);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 5px;
+    vertical-align: middle;
+    user-select: none;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.help-badge:hover {
+    background-color: var(--pico-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* 3. The Tooltip Container (Floating Window) */
+#kim-tooltip {
+    position: fixed;
+    z-index: 5000;
+    width: 250px;
+    background-color: var(--pico-card-background-color);
+    border: 1px solid var(--pico-contrast);
+    border-radius: var(--pico-border-radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    padding: 0.75rem;
+    font-size: 0.85em;
+    text-align: left;
+    
+    /* Interaction properties */
+    pointer-events: auto; 
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease-in-out; /* Smooth fade in/out */
+}
+
+#kim-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Internal Styling */
+#kim-tooltip h5 {
+    margin-bottom: 0.5rem;
+    font-size: 1em;
+    color: var(--pico-primary);
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    padding-bottom: 0.25rem;
+}
+
+#kim-tooltip p {
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    color: var(--pico-color);
+}
+
+#kim-tooltip a {
+    display: inline-block;
+    margin-top: 5px;
+    color: var(--pico-primary);
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#kim-tooltip a:hover {
+    color: var(--pico-primary-hover);
+    text-decoration: underline;
+}
+
+/* This selects elements that are triggers but NOT badges */
+.help-trigger:not(.help-badge):not(button) {
+    text-decoration: underline dotted;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--pico-muted-border-color);
+}
+
+.help-trigger:not(.help-badge):not(button):hover {
+    color: var(--pico-primary);
+    text-decoration-color: var(--pico-primary);
+}

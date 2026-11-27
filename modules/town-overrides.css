@@ -1,0 +1,275 @@
+/* --- Town Overrides Pane --- */
+
+#overrides-workspace {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1rem;
+  height: 100%;
+  width: 100%;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* --- Sidebar --- */
+#overrides-sidebar {
+  background-color: var(--pico-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  background-color: var(--pico-card-background-color);
+}
+.sidebar-header h4 {
+  margin: 0;
+}
+.sidebar-header small {
+  color: var(--pico-muted-color);
+}
+
+#override-list-container {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 0.5rem;
+}
+
+#override-town-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#override-town-list li {
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-bottom: 2px;
+  font-size: 0.9em;
+  color: var(--pico-color);
+}
+
+#override-town-list li:hover {
+  background-color: var(--pico-primary-hover);
+  color: var(--pico-primary-inverse);
+}
+
+#override-town-list li.active {
+  background-color: var(--pico-primary);
+  color: var(--pico-primary-inverse);
+  font-weight: bold;
+}
+
+/* --- Main Area & Tabs --- */
+#overrides-main {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--pico-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  overflow: hidden;
+}
+
+.pane-tabs {
+  display: flex;
+  background-color: var(--pico-card-background-color);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.pane-tab {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  color: var(--pico-muted-color);
+  font-weight: 600;
+}
+
+.pane-tab.active {
+  border-bottom-color: var(--pico-primary);
+  color: var(--pico-color);
+  background-color: var(--pico-background-color);
+}
+
+#override-content-wrapper {
+  position: relative;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.tab-content {
+  display: none;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* --- Path Visualization --- */
+.path-container {
+  background-color: var(--pico-card-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 4px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.path-container h4 {
+  margin-top: 0;
+  color: var(--pico-primary);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding-bottom: 0.5rem;
+}
+
+.override-diagnostics {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 1px solid #ff9800;
+  border-radius: 4px;
+}
+
+.override-diagnostics ul {
+  margin-bottom: 0;
+}
+
+.path-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.path-row.reverse {
+  flex-direction: row-reverse;
+}
+
+.path-step {
+  border: 1px solid var(--pico-contrast);
+  color: var(--kimap-text, var(--pico-color));
+  background-color: var(--kimap-surface-raised, var(--pico-card-background-color));
+  padding: 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+  flex: 1;
+  min-width: 120px;
+}
+
+.path-step[data-status="active"] {
+  border-color: #4caf50;
+}
+
+.path-step[data-status="eligible"] {
+  border-color: #8bc34a;
+}
+
+.path-step[data-status="blocked"] {
+  border-color: #777;
+}
+
+.path-step[data-status="indeterminate"] {
+  border-color: #ff9800;
+}
+
+.path-step[data-status="locked"] {
+  border-color: #f44336;
+}
+
+.path-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pico-muted-color);
+  font-size: 1.5em;
+}
+.path-arrow img {
+  width: 24px;
+  height: 24px;
+  filter: var(--kimap-icon-filter-muted, invert(0.6));
+}
+
+/* --- D3 Flowchart Specifics --- */
+/* Scoped to avoid conflict with other D3 modules */
+#override-flowchart-display svg {
+  background-color: #1a1a1a;
+  border-radius: 4px;
+}
+
+#override-flowchart-display .node rect {
+  fill: #2d2d2d;
+  stroke: var(--pico-primary);
+  stroke-width: 2px;
+}
+
+#override-flowchart-display .node text {
+  fill: #eee;
+  font-family: sans-serif;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+#override-flowchart-display .link {
+  stroke: #666;
+  stroke-width: 2px;
+  fill: none;
+}
+
+#override-flowchart-display .link.override-active,
+#override-flowchart-display .link.override-eligible {
+  stroke: #4caf50;
+}
+
+#override-flowchart-display .link.override-blocked {
+  stroke: #777;
+}
+
+#override-flowchart-display .link.override-indeterminate {
+  stroke: #ff9800;
+  stroke-dasharray: 5 4;
+}
+
+#override-flowchart-display .link.override-locked {
+  stroke: #f44336;
+  stroke-dasharray: 5 4;
+}
+
+#override-flowchart-display marker#arrow-active path {
+  fill: #4caf50;
+}
+
+#override-flowchart-display marker#arrow-inactive path {
+  fill: #777;
+}
+
+#override-flowchart-display marker#arrow-implausible path {
+  fill: #f44336;
+}
+
+/* Edge Labels (Conditions) */
+#override-flowchart-display .edge-label-bg {
+  fill: #111;
+  opacity: 0.85;
+  stroke: #444;
+  stroke-width: 1px;
+}
+#override-flowchart-display .edge-label text {
+  fill: #ccc;
+  font-size: 10px;
+}
+
+.close-label-btn {
+  cursor: pointer;
+  opacity: 0.7;
+}
+.close-label-btn:hover {
+  opacity: 1;
+}

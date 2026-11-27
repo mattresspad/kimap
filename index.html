@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kenshi Interactive Map</title>
+<script>
+(() => {
+    try {
+        const storedTheme = localStorage.getItem('kim-theme');
+        const theme = storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'dark';
+        document.documentElement.dataset.theme = theme;
+        if (storedTheme !== theme) localStorage.setItem('kim-theme', theme);
+    } catch (_error) {
+        document.documentElement.dataset.theme = 'dark';
+    }
+})();
+</script>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css"/>
+<!-- Project CSS -->
+    <link rel="stylesheet" href="dist/bundle.css?v=2026-11-07-vanilla-r2-v1">
+</head>
+<body>
+<section id="initialization-error-overlay" class="initialization-error-overlay hidden" role="region" aria-live="assertive" aria-labelledby="initialization-error-title">
+    <article class="initialization-error-card">
+        <h2 id="initialization-error-title">Map initialization failed</h2>
+        <p id="initialization-error-summary">KiMap could not initialize required map data.</p>
+        <p id="initialization-error-context" class="initialization-error-context"></p>
+        <button id="initialization-error-retry" type="button">Retry full initialization</button>
+    </article>
+</section>
+<div id="app-container">
+    <header id="top-bar" class="kimap-shell" data-layout-class="wide">
+        <div class="kimap-shell__left">
+            <a class="kimap-wordmark" href="/" aria-label="Kenshi Interactive Map home">
+                <svg class="kimap-wordmark__mark" viewBox="0 0 32 32" aria-hidden="true">
+                    <path d="M4 7.5 12 4l8 3.5L28 4v20.5L20 28l-8-3.5L4 28Z"/>
+                    <path d="M12 4v20.5M20 7.5V28M7.5 18l5-5 4 3 7-7"/>
+                </svg>
+                <span class="kimap-wordmark__text">KiMap</span>
+            </a>
+
+            <nav class="kimap-shell__navigation kimap-wide-only" aria-label="Application navigation">
+                <div class="kimap-disclosure">
+                    <button class="kimap-nav-trigger" type="button" data-shell-trigger="simulation" aria-expanded="false" aria-controls="topbar-simulation-panel">
+                        Simulation
+                        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>
+                    </button>
+                    <section id="topbar-simulation-panel" class="kimap-shell-disclosure" data-shell-panel="simulation" aria-label="Simulation destinations" hidden>
+                        <h2>Simulation</h2>
+                        <div class="kimap-destination-list" data-destination-group="simulation" data-destination-context="wide"></div>
+                    </section>
+                </div>
+                <div class="kimap-disclosure">
+                    <button class="kimap-nav-trigger" type="button" data-shell-trigger="reference" aria-expanded="false" aria-controls="topbar-reference-panel">
+                        Reference
+                        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>
+                    </button>
+                    <section id="topbar-reference-panel" class="kimap-shell-disclosure" data-shell-panel="reference" aria-label="Reference destinations" hidden>
+                        <h2>Reference</h2>
+                        <div class="kimap-destination-list" data-destination-group="reference" data-destination-context="wide"></div>
+                    </section>
+                </div>
+                <div class="kimap-disclosure">
+                    <button class="kimap-nav-trigger" type="button" data-shell-trigger="workspace" aria-expanded="false" aria-controls="topbar-workspace-panel">
+                        Workspace
+                        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>
+                    </button>
+                    <section id="topbar-workspace-panel" class="kimap-shell-disclosure" data-shell-panel="workspace" aria-label="Workspace destinations" hidden>
+                        <h2>Workspace</h2>
+                        <div class="kimap-destination-list" data-destination-group="workspace" data-destination-context="wide"></div>
+                    </section>
+                </div>
+                <div class="kimap-destination-list kimap-destination-list--inline" data-destination-group="utility" data-destination-context="wide"></div>
+            </nav>
+
+            <div class="kimap-disclosure kimap-compact-only">
+                <button class="kimap-shell-button kimap-nav-trigger" type="button" data-shell-trigger="navigation" aria-expanded="false" aria-controls="topbar-navigation-panel" aria-label="Open application navigation">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                    <span class="kimap-nav-trigger__label">Navigation</span>
+                </button>
+                <section id="topbar-navigation-panel" class="kimap-shell-disclosure kimap-shell-disclosure--navigation" data-shell-panel="navigation" aria-label="Application navigation" hidden>
+                    <h2>Navigation</h2>
+                    <section class="kimap-destination-section">
+                        <h3>Simulation</h3>
+                        <div class="kimap-destination-list" data-destination-group="simulation" data-destination-context="compact"></div>
+                    </section>
+                    <section class="kimap-destination-section">
+                        <h3>Reference</h3>
+                        <div class="kimap-destination-list" data-destination-group="reference" data-destination-context="compact"></div>
+                    </section>
+                    <section class="kimap-destination-section">
+                        <h3>Workspace</h3>
+                        <div class="kimap-destination-list" data-destination-group="workspace" data-destination-context="compact"></div>
+                    </section>
+                    <div class="kimap-destination-list" data-destination-group="utility" data-destination-context="compact"></div>
+                </section>
+            </div>
+        </div>
+
+        <div class="kimap-shell__center">
+            <div id="quick-search" class="kimap-quick-search" data-open="false" data-state="loading">
+                <button id="quick-search-launcher" class="kimap-shell-button kimap-quick-search__launcher kimap-compact-only" type="button" data-search-launcher aria-expanded="false" aria-controls="quick-search-surface" aria-label="Searchable records are loading" title="Searchable records are loading" disabled>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                    <span>Search</span>
+                </button>
+                <div id="quick-search-surface" class="kimap-quick-search__surface">
+                    <div class="kimap-quick-search__input-row">
+                        <button id="quick-search-filter-button" class="kimap-quick-search__filter-trigger" type="button" data-search-filter-trigger aria-expanded="false" aria-controls="quick-search-filter-panel" aria-label="Searchable records are loading" title="Searchable records are loading" disabled>
+                            <span class="kimap-quick-search__filter-icon" aria-hidden="true"></span>
+                        </button>
+                        <div class="kimap-quick-search__input-wrap">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                            <label class="visually-hidden" for="quick-search-input">Search map and reference records</label>
+                            <input id="quick-search-input" class="kimap-quick-search__input" type="search" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" aria-controls="quick-search-results" autocomplete="off" placeholder="Loading searchable records…" disabled>
+                            <button class="kimap-quick-search__clear" type="button" data-search-clear aria-label="Clear Quick Search" title="Clear search" hidden>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="quick-search-panel" class="kimap-quick-search__panel" data-search-panel hidden>
+                        <div id="quick-search-filter-panel" class="kimap-quick-search__filter-panel" data-search-filter-panel hidden>
+                            <fieldset>
+                                <legend>Search record types</legend>
+                                <div class="kimap-quick-search__filter-options" data-search-filter-options></div>
+                            </fieldset>
+                        </div>
+                        <div data-search-results-view>
+                            <p id="quick-search-status" class="kimap-quick-search__status" role="status" aria-live="polite"></p>
+                            <ul id="quick-search-results" class="kimap-quick-search__results" role="listbox" aria-label="Quick Search results"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="kimap-shell__right">
+            <nav class="kimap-ecosystem-wide kimap-wide-only" aria-label="Kenshi Wiki ecosystem">
+                <a class="kimap-shell-button" href="https://kenshi.wiki/" aria-label="Kenshi Wiki" title="Kenshi Wiki"><span class="kimap-ecosystem-icon kimap-ecosystem-icon--wiki" aria-hidden="true"></span></a>
+                <a class="kimap-shell-button" href="https://talk.kenshi.wiki/" aria-label="Kenshi Wiki Forums" title="Forums"><span class="kimap-ecosystem-icon kimap-ecosystem-icon--forums" aria-hidden="true"></span></a>
+                <a class="kimap-shell-button" href="https://kenshidb.wiki/" aria-label="KenshiDB" title="KenshiDB"><span class="kimap-ecosystem-icon kimap-ecosystem-icon--database" aria-hidden="true"></span></a>
+                <a class="kimap-shell-button" href="https://web-fcs.kenshi.wiki/" aria-label="Web FCS" title="Web FCS"><svg class="kimap-ecosystem-web-fcs-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4Z"/><path d="M4 9h16M8 5v14M12 12h5M12 16h3"/></svg></a>
+            </nav>
+
+            <div class="kimap-disclosure kimap-compact-only">
+                <button class="kimap-shell-button kimap-nav-trigger" type="button" data-shell-trigger="sites" aria-expanded="false" aria-controls="topbar-sites-panel" aria-label="Open ecosystem sites">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.4 3 14.6 0 18M12 3c-3 3.4-3 14.6 0 18"/></svg>
+                    <span class="kimap-nav-trigger__label">Sites</span>
+                </button>
+                <section id="topbar-sites-panel" class="kimap-shell-disclosure kimap-shell-disclosure--end" data-shell-panel="sites" aria-label="Ecosystem sites" hidden>
+                    <h2>Sites</h2>
+                    <div class="kimap-destination-list">
+                        <a href="https://kenshi.wiki/"><span class="kimap-ecosystem-icon kimap-ecosystem-icon--wiki" aria-hidden="true"></span><span>Kenshi Wiki</span></a>
+                        <a href="https://talk.kenshi.wiki/"><span class="kimap-ecosystem-icon kimap-ecosystem-icon--forums" aria-hidden="true"></span><span>Forums</span></a>
+                        <a href="https://kenshidb.wiki/"><span class="kimap-ecosystem-icon kimap-ecosystem-icon--database" aria-hidden="true"></span><span>KenshiDB</span></a>
+                        <a href="https://web-fcs.kenshi.wiki/"><svg class="kimap-ecosystem-web-fcs-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4Z"/><path d="M4 9h16M8 5v14M12 12h5M12 16h3"/></svg><span>Web FCS</span></a>
+                    </div>
+                </section>
+            </div>
+
+            <button id="theme-toggle" class="kimap-shell-button" type="button" data-theme-toggle aria-label="Switch to light theme" title="Switch to light theme">
+                <svg data-theme-icon="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+                <svg data-theme-icon="moon" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2Z"/></svg>
+            </button>
+
+            
+        </div>
+    </header>
+<!-- Viewport Workbench -->
+<div
+    id="viewport-workbench"
+    data-layout-class="wide"
+    data-short="false"
+    data-active-task="browse"
+    data-focus-map="false"
+    data-dock-visible="true"
+    data-inspector-visible="false"
+    data-active-sheet="dock"
+>
+    <aside id="unified-dock" class="kimap-ui" x-data="mainMenu" data-workbench-role="dock" aria-label="Map workbench" tabindex="-1">
+        <div id="dock-header">
+            <div class="workbench-panel-identity">
+                <svg class="workbench-panel-identity-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                    <path d="M4 5.5h12M4 10h12M4 14.5h12"/>
+                </svg>
+                <span id="dock-title">Your Workbench</span>
+            </div>
+            <div class="dock-controls">
+                <details id="phone-workbench-utilities" class="phone-workbench-utilities">
+                    <summary aria-label="Workbench utilities"><img src="%KIM_ASSET_ORIGIN%/icons/utilities-cog.svg?v=2026-09-30-new-controls-v1" alt="">Utilities</summary>
+                    <div class="phone-workbench-utility-menu">
+                        <button id="phone-focus-map-btn" type="button">Focus Map</button>
+                        <button id="phone-reset-workspace-btn" type="button">Restore Default Workspace</button>
+                    </div>
+                </details>
+                <button id="phone-tasks-close-btn" class="phone-panel-close" type="button" aria-label="Close Workbench">&times;</button>
+                <button
+                    id="dock-minimize-btn"
+                    class="workbench-title-control"
+                    type="button"
+                    title="Hide task dock"
+                    aria-label="Hide task dock"
+                    @click.stop="toggleCollapse()"
+                >
+                    <svg class="workbench-control-glyph" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="M4.5 10h11"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <nav id="workbench-task-tabs" role="tablist" aria-label="Map tasks">
+            <button id="workbench-task-browse-btn" type="button" role="tab" data-workbench-task="browse" aria-controls="workbench-route-browse" aria-selected="true">Browse</button>
+            <button id="workbench-task-simulate-btn" type="button" role="tab" data-workbench-task="simulate" aria-controls="workbench-route-simulate" aria-selected="false">Simulate</button>
+            <button id="workbench-task-plan-btn" type="button" role="tab" data-workbench-task="plan" aria-controls="workbench-route-plan" aria-selected="false">Plan</button>
+        </nav>
+
+        <div id="dock-body">
+            <div id="workbench-task-routes">
+                <section id="workbench-route-browse" class="workbench-route" role="tabpanel" data-workbench-route="browse" aria-labelledby="workbench-task-browse-btn">
+                    <div id="browse-main-view" class="workbench-route-view">
+                        <div id="browse-context-chrome" class="browse-context-chrome" data-subject-open="false">
+                        <header class="workbench-route-header">
+                            <div>
+                                <span class="workbench-eyebrow">Reference</span>
+                                <h2>Explore map content</h2>
+                            </div>
+                            
+                        </header>
+                        <nav id="browse-mode-switch" class="browse-mode-switch" aria-label="Browse mode">
+                            <button id="browse-mode-context-btn" type="button" aria-pressed="true">Context</button>
+                            <button id="browse-mode-content-btn" type="button" aria-pressed="false">Content</button>
+                        </nav>
+                        <header id="browse-context-subject-header" class="browse-context-subject-header" hidden>
+                            <button id="browse-context-back-btn" class="workbench-back-btn" type="button">&larr; Context</button>
+                            <div>
+                                <span class="workbench-eyebrow">Curated subject</span>
+                                <h3 id="browse-context-title" tabindex="-1">Context</h3>
+                            </div>
+                        </header>
+                        <label id="browse-context-search" class="browse-context-search" for="browse-context-search-input" hidden>
+                            <span class="browse-context-search-label">Search this subject</span>
+                            <input id="browse-context-search-input" type="search" autocomplete="off">
+                        </label>
+                        </div>
+
+                        <div id="browse-context-view" class="workbench-route-flow">
+                            <section id="browse-context-dashboard" aria-labelledby="browse-context-dashboard-title">
+                                <div class="browse-context-introduction">
+                                    <h3 id="browse-context-dashboard-title">Explore by purpose</h3>
+                                    <p>Find noteworthy records through curated, map-aware questions.</p>
+                                </div>
+                                <div class="browse-context-cards">
+                                    <button type="button" class="browse-context-card" data-context-subject="keyCharacters" data-context-route="keyCharacters">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3"/><path d="M6 20c.5-4.5 2.5-7 6-7s5.5 2.5 6 7M17 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1Z"/></svg>
+                                        </span>
+                                        <span><strong>Key Characters</strong><small>Reachable world-state characters</small></span>
+                                    </button>
+                                    <button type="button" class="browse-context-card" data-context-subject="bountyTargets" data-context-route="bountyTargets">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+                                        </span>
+                                        <span><strong>Bounty Targets</strong><small>Reachable authored bounties</small></span>
+                                    </button>
+                                    <button type="button" class="browse-context-card" data-context-subject="deadlyAnimals" data-context-route="deadlyAnimals">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="M6 18c0-4 2-8 6-8s6 4 6 8M8 9 6 5l4 2m6 2 2-4-4 2M9 14h.01M15 14h.01M10 18h4"/></svg>
+                                        </span>
+                                        <span><strong>Deadly Animals</strong><small>Strength, trophies, habitats</small></span>
+                                    </button>
+                                    <button type="button" class="browse-context-card" data-context-route="treasureHunting">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="M4 7h16v12H4Z"/><path d="M8 7V5h8v2M4 11h16M10 11v3h4v-3"/></svg>
+                                        </span>
+                                        <span><strong>Treasure Hunting</strong><small>Valuable towns and Nest loot</small></span>
+                                    </button>
+                                    <button type="button" class="browse-context-card" data-context-route="shoppingList">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="M6 7h15l-2 8H8L6 4H3M9 20h.01M18 20h.01"/><path d="M11 10h5m-2.5-2.5v5"/></svg>
+                                        </span>
+                                        <span><strong>Shopping List</strong><small>Vendor goods and trade context</small></span>
+                                    </button>
+                                    <button type="button" class="browse-context-card" data-context-subject="prospecting" data-context-route="prospecting">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/><circle cx="12" cy="12" r="5"/><path d="m10 14 4-4-1 3-3 1Z"/></svg>
+                                        </span>
+                                        <span><strong>Prospecting</strong><small>Resources, fertility, and hazards</small></span>
+                                    </button>
+                                    <button type="button" class="browse-context-card" data-context-subject="factionOverview" data-context-route="factionOverview">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="M5 21V4m0 1c3-2 5 2 8 0s5 0 6 1v10c-3-1-4-3-7-1s-5-2-7 0"/><circle cx="9" cy="10" r="1"/><path d="M12 11h4"/></svg>
+                                        </span>
+                                        <span><strong>Faction Overview</strong><small>One faction’s mapped presence</small></span>
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section id="browse-context-collection" class="browse-context-subject" aria-labelledby="browse-context-collection-title" hidden>
+                                <header class="browse-context-subject-header">
+                                    <button id="browse-context-collection-back-btn" class="workbench-back-btn" type="button"><img src="%KIM_ASSET_ORIGIN%/icons/back-arrow.svg?v=2026-09-30-new-controls-v1" alt="">Context</button>
+                                    <div>
+                                        <span class="workbench-eyebrow">Context collection</span>
+                                        <h3 id="browse-context-collection-title" tabindex="-1">Collection</h3>
+                                    </div>
+                                </header>
+                                <p id="browse-context-collection-status" class="browse-context-status"></p>
+                                <div class="browse-context-cards" data-context-collection-route="treasureHunting" hidden>
+                                    <button type="button" class="browse-context-card" data-context-subject="treasureSpots" data-context-route="treasureSpots">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="M4 6h16v13H4Z"/><path d="M8 6V4h8v2M4 10h16M12 13v3m-1.5-1.5h3"/></svg>
+                                        </span>
+                                        <span><strong>Treasure Spots</strong><small>Valuable stock or death loot</small></span>
+                                    </button>
+                                    <button type="button" class="browse-context-card" data-context-subject="nestTreasures" data-context-route="nestTreasures">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 3c4 0 7 7 7 12a7 7 0 0 1-14 0c0-5 3-12 7-12Z"/><path d="M8 13c2-1 6-1 8 0"/></svg>
+                                        </span>
+                                        <span><strong>Nest Treasures</strong><small>Valuable Nest items and sources</small></span>
+                                    </button>
+                                    <button type="button" class="browse-context-card" data-context-subject="fancyWeaponWielders" data-context-route="fancyWeaponWielders">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="m5 19 9-9m-2-5 7 7M4 20l3-1-2-2-1 3Zm9-16 7 7-3 3-7-7 3-3Z"/></svg>
+                                        </span>
+                                        <span><strong>Fancy Weapon Wielders</strong><small>Reachable Edge or Meitou wielders</small></span>
+                                    </button>
+                                </div>
+                                <div class="browse-context-cards" data-context-collection-route="shoppingList" hidden>
+                                    <button type="button" class="browse-context-card" data-context-subject="narcotics" data-context-route="narcotics">
+                                        <span class="browse-context-card-icon" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" focusable="false"><path d="M8 4h8l2 5-2 11H8L6 9Z"/><path d="M9 8h6m-5 4h4m-5 4h6"/></svg>
+                                        </span>
+                                        <span><strong>Narcotics</strong><small>Vendor sources and prohibition</small></span>
+                                    </button>
+                                </div>
+                            </section>
+
+                            <section id="browse-context-subject" class="browse-context-subject" aria-labelledby="browse-context-title" hidden>
+                                <div class="browse-context-introduction browse-context-subject-introduction">
+                                    <p id="browse-context-summary"></p>
+                                    <button id="browse-context-help-btn" type="button" class="browse-context-help-btn">How this list works</button>
+                                </div>
+                                <p id="browse-context-status" class="browse-context-status" role="status" hidden></p>
+                                <div id="browse-prospecting-controls" class="browse-prospecting-controls" hidden>
+                                    <fieldset class="browse-prospecting-group">
+                                        <legend>Fertility &amp; resources</legend>
+                                        <div class="browse-prospecting-criteria">
+                                            <div class="browse-prospecting-criterion">
+                                                <label for="browse-prospecting-arid"><input id="browse-prospecting-arid" type="checkbox" value="arid" data-prospecting-criterion="arid">Arid</label>
+                                                <div class="browse-prospecting-slider-row" data-prospecting-slider-row="arid" hidden>
+                                                    <label for="browse-prospecting-arid-minimum">Minimum Arid</label>
+                                                    <output id="browse-prospecting-arid-value" for="browse-prospecting-arid-minimum">Any positive</output>
+                                                    <input id="browse-prospecting-arid-minimum" type="range" min="0" max="1" step="any" value="0" data-prospecting-minimum="arid" aria-describedby="browse-prospecting-arid-value" aria-valuetext="Any positive value">
+                                                </div>
+                                            </div>
+                                            <div class="browse-prospecting-criterion">
+                                                <label for="browse-prospecting-green"><input id="browse-prospecting-green" type="checkbox" value="green" data-prospecting-criterion="green">Green</label>
+                                                <div class="browse-prospecting-slider-row" data-prospecting-slider-row="green" hidden>
+                                                    <label for="browse-prospecting-green-minimum">Minimum Green</label>
+                                                    <output id="browse-prospecting-green-value" for="browse-prospecting-green-minimum">Any positive</output>
+                                                    <input id="browse-prospecting-green-minimum" type="range" min="0" max="1" step="any" value="0" data-prospecting-minimum="green" aria-describedby="browse-prospecting-green-value" aria-valuetext="Any positive value">
+                                                </div>
+                                            </div>
+                                            <div class="browse-prospecting-criterion">
+                                                <label for="browse-prospecting-swamp"><input id="browse-prospecting-swamp" type="checkbox" value="swamp" data-prospecting-criterion="swamp">Swamp</label>
+                                                <div class="browse-prospecting-slider-row" data-prospecting-slider-row="swamp" hidden>
+                                                    <label for="browse-prospecting-swamp-minimum">Minimum Swamp</label>
+                                                    <output id="browse-prospecting-swamp-value" for="browse-prospecting-swamp-minimum">Any positive</output>
+                                                    <input id="browse-prospecting-swamp-minimum" type="range" min="0" max="1" step="any" value="0" data-prospecting-minimum="swamp" aria-describedby="browse-prospecting-swamp-value" aria-valuetext="Any positive value">
+                                                </div>
+                                            </div>
+                                            <div class="browse-prospecting-criterion">
+                                                <label for="browse-prospecting-copper"><input id="browse-prospecting-copper" type="checkbox" value="copper" data-prospecting-criterion="copper">Copper</label>
+                                                <div class="browse-prospecting-slider-row" data-prospecting-slider-row="copper" hidden>
+                                                    <label for="browse-prospecting-copper-minimum">Minimum Copper</label>
+                                                    <output id="browse-prospecting-copper-value" for="browse-prospecting-copper-minimum">Any positive</output>
+                                                    <input id="browse-prospecting-copper-minimum" type="range" min="0" max="1" step="any" value="0" data-prospecting-minimum="copper" aria-describedby="browse-prospecting-copper-value" aria-valuetext="Any positive value">
+                                                </div>
+                                            </div>
+                                            <div class="browse-prospecting-criterion">
+                                                <label for="browse-prospecting-iron"><input id="browse-prospecting-iron" type="checkbox" value="iron" data-prospecting-criterion="iron">Iron</label>
+                                                <div class="browse-prospecting-slider-row" data-prospecting-slider-row="iron" hidden>
+                                                    <label for="browse-prospecting-iron-minimum">Minimum Iron</label>
+                                                    <output id="browse-prospecting-iron-value" for="browse-prospecting-iron-minimum">Any positive</output>
+                                                    <input id="browse-prospecting-iron-minimum" type="range" min="0" max="1" step="any" value="0" data-prospecting-minimum="iron" aria-describedby="browse-prospecting-iron-value" aria-valuetext="Any positive value">
+                                                </div>
+                                            </div>
+                                            <div class="browse-prospecting-criterion">
+                                                <label for="browse-prospecting-stone"><input id="browse-prospecting-stone" type="checkbox" value="stone" data-prospecting-criterion="stone">Stone</label>
+                                                <div class="browse-prospecting-slider-row" data-prospecting-slider-row="stone" hidden>
+                                                    <label for="browse-prospecting-stone-minimum">Minimum Stone</label>
+                                                    <output id="browse-prospecting-stone-value" for="browse-prospecting-stone-minimum">Any positive</output>
+                                                    <input id="browse-prospecting-stone-minimum" type="range" min="0" max="1" step="any" value="0" data-prospecting-minimum="stone" aria-describedby="browse-prospecting-stone-value" aria-valuetext="Any positive value">
+                                                </div>
+                                            </div>
+                                            <div class="browse-prospecting-criterion">
+                                                <label for="browse-prospecting-water"><input id="browse-prospecting-water" type="checkbox" value="water" data-prospecting-criterion="water">Water multiplier</label>
+                                                <div class="browse-prospecting-slider-row" data-prospecting-slider-row="water" hidden>
+                                                    <label for="browse-prospecting-water-minimum">Minimum Water multiplier</label>
+                                                    <output id="browse-prospecting-water-value" for="browse-prospecting-water-minimum">Any positive</output>
+                                                    <input id="browse-prospecting-water-minimum" type="range" min="0" max="1" step="any" value="0" data-prospecting-minimum="water" aria-describedby="browse-prospecting-water-value" aria-valuetext="Any positive value">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset class="browse-prospecting-group">
+                                        <legend>Weather &amp; zone effects</legend>
+                                        <div class="browse-prospecting-conditions">
+                                            <label for="browse-prospecting-acid-ground"><input id="browse-prospecting-acid-ground" type="checkbox" value="acidGround" data-prospecting-criterion="acidGround">Acidic Ground</label>
+                                            <label for="browse-prospecting-acid-water"><input id="browse-prospecting-acid-water" type="checkbox" value="acidWater" data-prospecting-criterion="acidWater">Acidic Water</label>
+                                            <label for="browse-prospecting-gas"><input id="browse-prospecting-gas" type="checkbox" value="gas" data-prospecting-criterion="gas">Gas</label>
+                                            <label for="browse-prospecting-acid-rain"><input id="browse-prospecting-acid-rain" type="checkbox" value="acidRain" data-prospecting-criterion="acidRain">Acid Rain</label>
+                                            <label for="browse-prospecting-duststorm"><input id="browse-prospecting-duststorm" type="checkbox" value="duststorm" data-prospecting-criterion="duststorm">Duststorm</label>
+                                            <label for="browse-prospecting-burning"><input id="browse-prospecting-burning" type="checkbox" value="burning" data-prospecting-criterion="burning">Burning</label>
+                                        </div>
+                                    </fieldset>
+                                    <button id="browse-prospecting-clear-btn" type="button" class="secondary">Clear criteria</button>
+                                    <p id="browse-prospecting-map-status" class="browse-context-status" role="status" hidden></p>
+                                    <div id="browse-prospecting-legend" class="browse-prospecting-legend" aria-label="Prospecting map legend">
+                                        <span><i class="browse-prospecting-legend-swatch is-match" aria-hidden="true"></i>All criteria match</span>
+                                        <span><i class="browse-prospecting-legend-swatch is-ambiguous" aria-hidden="true"></i>Shared raster color; mixed areas</span>
+                                    </div>
+                                </div>
+                                <div id="browse-faction-overview-controls" class="browse-faction-overview-controls" hidden>
+                                    <div class="browse-faction-picker-panel">
+                                        <label for="browse-faction-picker">Choose a faction</label>
+                                        <select id="browse-faction-picker" size="7" aria-describedby="browse-faction-picker-count"></select>
+                                        <p id="browse-faction-picker-count" class="browse-faction-picker-count" role="status">Loading faction choices…</p>
+                                    </div>
+                                    <details id="browse-faction-diagnostics" class="browse-faction-report-section" hidden>
+                                        <summary>Evidence diagnostics</summary>
+                                        <ul></ul>
+                                    </details>
+                                    <button id="browse-faction-clear-btn" type="button" class="secondary">Clear selection</button>
+                                    <div id="browse-faction-report" class="browse-faction-report" role="region" aria-label="Selected faction overview"></div>
+                                    <p id="browse-faction-map-status" class="browse-context-status" role="status" hidden></p>
+                                    <div id="browse-faction-legend" class="browse-faction-legend" aria-label="Faction Overview map legend" hidden>
+                                        <span><i class="browse-faction-legend-swatch is-area" aria-hidden="true"></i>Current Squad spawn area</span>
+                                        <span><i class="browse-faction-legend-swatch is-ambiguous" aria-hidden="true"></i>Shared raster color; mixed areas</span>
+                                        <span><i class="browse-faction-legend-swatch is-town" aria-hidden="true"></i>Currently owned town</span>
+                                    </div>
+                                </div>
+                                <div class="browse-context-bulk-actions">
+                                    <button id="browse-context-show-btn" type="button">Show All</button>
+                                    <button id="browse-context-clear-btn" type="button" class="secondary">Clear All</button>
+                                </div>
+                                <p id="browse-context-result-count" class="browse-context-result-count"></p>
+                                <div id="browse-context-results" class="browse-context-results"></div>
+                            </section>
+                        </div>
+
+                        <div id="browse-content-view" hidden>
+                            <div id="browse-context-retention" class="browse-context-retention" hidden>
+                                <span id="browse-context-retention-label">Context indicators remain visible.</span>
+                                <button id="browse-return-context-btn" type="button">Return to Context</button>
+                                <button id="browse-clear-context-btn" type="button" class="secondary">Clear Context</button>
+                            </div>
+                            <div id="dock-section-manifest" class="workbench-route-flow">
+                                <p id="browse-content-warning" class="browse-context-status" hidden></p>
+                                <div id="manifest-content"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </section>
+
+                <section id="workbench-route-simulate" class="workbench-route" role="tabpanel" data-workbench-route="simulate" aria-labelledby="workbench-task-simulate-btn" hidden>
+                    <div id="simulate-main-view" class="workbench-route-view">
+                        <header id="scenario-summary-strip" class="workbench-sticky-summary">
+                            <div class="scenario-summary-heading">
+                                <span class="workbench-eyebrow">Active scenario</span>
+                                <div class="scenario-summary-badges">
+                                    <strong id="scenario-document-summary" class="scenario-document-badge">Unsaved scenario</strong>
+                                    <span id="scenario-dirty-summary" class="workbench-state-badge">Ready</span>
+                                </div>
+                            </div>
+                            <div class="scenario-baseline-row">
+                                <p id="scenario-baseline-summary" class="workbench-summary-detail">Waiting for baseline identity.</p>
+                                <button
+                                    id="copy-scenario-baseline-btn"
+                                    class="scenario-baseline-copy"
+                                    type="button"
+                                    title="Copy complete baseline identity"
+                                    aria-label="Copy complete baseline identity"
+                                    disabled
+                                >Copy</button>
+                            </div>
+                            <div id="scenario-status" class="scenario-status" role="status" aria-live="polite" hidden></div>
+                            <div class="scenario-summary-actions">
+                                <button id="workbench-undo-btn" type="button">Undo</button>
+                                <button id="workbench-redo-btn" type="button">Redo</button>
+                                <button id="open-relations-journal-btn" class="workbench-secondary-action" type="button" title="Open Relations Journal">Relations</button>
+                            </div>
+                        </header>
+
+                        <div id="dock-section-simulation" class="workbench-route-flow">
+                            <section class="sim-group" aria-labelledby="faction-relations-title">
+                                <h2 id="faction-relations-title" class="sim-section-heading">Faction Relations</h2>
+                                <div id="faction-relations-panel" class="sim-content" role="region" aria-labelledby="faction-relations-title"></div>
+                            </section>
+
+                            <section class="sim-group" aria-labelledby="character-status-title">
+                                <h2 id="character-status-title" class="sim-section-heading">Character Status</h2>
+                                <div id="character-status-panel" class="sim-content" role="region" aria-labelledby="character-status-title"></div>
+                            </section>
+
+                            <section id="scenario-recent-journal" class="sim-group workbench-recent-journal" aria-labelledby="scenario-recent-journal-title">
+                                <h2 id="scenario-recent-journal-title" class="sim-section-heading">Recent history</h2>
+                                <div id="log-wrapper" class="sim-content">
+                                    <div id="log-entries" tabindex="0" aria-label="Recent scenario history"></div>
+                                    <nav class="scenario-journal-links" aria-label="Scenario analysis">
+                                        <button id="open-workbench-world-history-btn" type="button">World History</button>
+                                        <button id="open-workbench-global-status-btn" type="button">Global Status</button>
+                                    </nav>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+
+                    <div id="relations-journal-panel" class="workbench-subview hidden" aria-labelledby="journal-panel-title">
+                        <div id="journal-panel-header" class="workbench-subview-header">
+                            <button id="relations-subview-back-btn" class="workbench-back-btn" type="button" aria-label="Back to Simulate">&larr; Back</button>
+                            <span id="journal-panel-title">Relations Journal</span>
+                            <button id="journal-panel-close-btn" class="close-button" type="button" aria-label="Close Relations Journal"><span aria-hidden="true">&times;</span></button>
+                        </div>
+                        <div id="journal-panel-content"></div>
+                    </div>
+                </section>
+
+                <section id="workbench-route-plan" class="workbench-route" role="tabpanel" data-workbench-route="plan" aria-labelledby="workbench-task-plan-btn" hidden>
+                    <div id="plan-main-view" class="workbench-route-view">
+                        <header class="workbench-route-header">
+                            <div>
+                                <span class="workbench-eyebrow">Planning &amp; presentation</span>
+                                <h2>Plan and style the map</h2>
+                            </div>
+                        </header>
+                        <div class="plan-dashboard">
+                            <article id="plan-marker-card" class="plan-dashboard-card">
+                                <header>
+                                    <div>
+                                        <h3>Player Markers</h3>
+                                    </div>
+                                    <span class="plan-dashboard-count-status"><span id="plan-marker-count" class="workbench-count">0</span><small class="plan-dashboard-count-label">Active</small></span>
+                                </header>
+                                <p id="plan-marker-document-status">No saved marker set loaded.</p>
+                                <div class="plan-dashboard-actions">
+                                    <button id="plan-marker-place-btn" type="button">Place Marker</button>
+                                    <button id="plan-marker-manage-btn" type="button" class="secondary">Manage</button>
+                                </div>
+                            </article>
+
+                            <article id="plan-paint-card" class="plan-dashboard-card">
+                                <header>
+                                    <div>
+                                        <h3>Drawings &amp; Plans</h3>
+                                    </div>
+                                    <span class="plan-dashboard-count-status"><span id="plan-paint-count" class="workbench-count">0</span><small class="plan-dashboard-count-label">Active</small></span>
+                                </header>
+                                <p id="plan-paint-document-status">No saved paint plan loaded.</p>
+                                <div class="plan-dashboard-actions">
+                                    <button id="plan-paint-draw-btn" type="button">Start Drawing</button>
+                                    <button id="plan-paint-manage-btn" type="button" class="secondary">Manage</button>
+                                </div>
+                            </article>
+
+                            <article id="plan-overlay-card" class="plan-dashboard-card" aria-labelledby="plan-overlay-title">
+                                <header>
+                                    <div>
+                                        <h3 id="plan-overlay-title" tabindex="-1">Overlay Controls</h3>
+                                    </div>
+                                </header>
+                                <div class="plan-dashboard-actions plan-overlay-actions">
+                                    <button id="plan-layer-configuration-btn" type="button">Layer Configuration</button>
+                                    <button id="plan-faction-colors-btn" type="button">Faction Colors</button>
+                                </div>
+                                <dl class="plan-layer-summary">
+                                    <dt>World View</dt>
+                                    <dd id="plan-layer-world-view">Layers are loading or unavailable.</dd>
+                                    <dt>Map Content</dt>
+                                    <dd id="plan-layer-map-content">Layers are loading or unavailable.</dd>
+                                    <dt>Reference Layers</dt>
+                                    <dd id="plan-layer-reference">Layers are loading or unavailable.</dd>
+                                </dl>
+                            </article>
+                        </div>
+                    </div>
+
+                    <div id="layer-configuration-panel" class="workbench-subview" aria-labelledby="layer-configuration-title" hidden>
+                        <header class="workbench-subview-header">
+                            <button id="layer-configuration-back-btn" class="workbench-back-btn" type="button" aria-label="Back to Plan Overlay Controls">&larr; Back</button>
+                            <h2 id="layer-configuration-title" tabindex="-1">Layer Configuration</h2>
+                        </header>
+                        <div class="layer-configuration-content">
+                            <p class="workbench-empty-state">Enable a layer in World Views to edit its settings.</p>
+                            <section class="layer-configuration-section" aria-labelledby="layer-configuration-roads-title">
+                                <h3 id="layer-configuration-roads-title" tabindex="-1">Road Visibility</h3>
+                                <p id="layer-configuration-roads-status" class="layer-configuration-status">Layer unavailable</p>
+                                <fieldset id="layer-configuration-roads" aria-labelledby="layer-configuration-roads-title" aria-describedby="layer-configuration-roads-status" disabled>
+                                    <div class="layer-configuration-color-row">
+                                        <label for="map-road-native-color">Native</label>
+                                        <input type="color" id="map-road-native-color" value="#dfa959">
+                                    </div>
+                                    <div class="layer-configuration-color-row">
+                                        <label for="map-road-custom-color">Custom</label>
+                                        <input type="color" id="map-road-custom-color" value="#ffaa00">
+                                    </div>
+                                    <div class="layer-configuration-actions">
+                                        <button id="map-road-match-btn" type="button">Match Custom to Native</button>
+                                        <button id="map-road-highvis-btn" type="button">High Visibility</button>
+                                        <button id="map-road-reset-btn" type="button">Reset</button>
+                                    </div>
+                                </fieldset>
+                            </section>
+                            <section class="layer-configuration-section" aria-labelledby="layer-configuration-borders-title">
+                                <h3 id="layer-configuration-borders-title" tabindex="-1">Border Color</h3>
+                                <p id="layer-configuration-borders-status" class="layer-configuration-status">Layer unavailable</p>
+                                <fieldset id="layer-configuration-borders" aria-labelledby="layer-configuration-borders-title" aria-describedby="layer-configuration-borders-status" disabled>
+                                    <div class="layer-configuration-color-row">
+                                        <label for="map-border-color">Ink Color</label>
+                                        <input type="color" id="map-border-color" value="#000000">
+                                    </div>
+                                </fieldset>
+                            </section>
+                            <section class="layer-configuration-section" aria-labelledby="layer-configuration-debugGrid-title">
+                                <h3 id="layer-configuration-debugGrid-title" tabindex="-1">Debug Grid Control</h3>
+                                <p id="layer-configuration-debugGrid-status" class="layer-configuration-status">Layer unavailable</p>
+                                <fieldset id="layer-configuration-debugGrid" aria-labelledby="layer-configuration-debugGrid-title" aria-describedby="layer-configuration-debugGrid-status" disabled>
+                                    <div class="layer-configuration-color-row">
+                                        <label for="map-debug-grid-color">Grid Color</label>
+                                        <input type="color" id="map-debug-grid-color" value="#00ffff">
+                                    </div>
+                                </fieldset>
+                            </section>
+                        </div>
+                    </div>
+
+                    <div id="faction-colors-panel" class="workbench-subview" aria-labelledby="faction-colors-title" hidden>
+                        <header class="workbench-subview-header">
+                            <button id="faction-colors-back-btn" class="workbench-back-btn" type="button" aria-label="Back to Plan Overlay Controls">&larr; Back</button>
+                            <h2 id="faction-colors-title" tabindex="-1">Faction Colors</h2>
+                        </header>
+                        <div class="faction-colors-content">
+                            <section class="faction-colors-introduction" aria-labelledby="political-method-title">
+                                <span class="workbench-eyebrow">Experimental world view</span>
+                                <h3 id="political-method-title">Local Authored Balance</h3>
+                                <p>Compares current inhabited-town and authored local spawn evidence. Neutral patterns preserve uncertainty and evidence excluded from the visible roster.</p>
+                                <p id="political-readiness-status" class="faction-colors-status" role="status">Political evidence is loading.</p>
+                            </section>
+
+                            <fieldset id="faction-colors-controls" class="faction-colors-controls" disabled>
+                                <div class="political-opacity-control">
+                                    <label for="political-opacity">Political View opacity</label>
+                                    <div>
+                                        <input id="political-opacity" type="range" min="35" max="100" step="1" value="70">
+                                        <output id="political-opacity-value" for="political-opacity">70%</output>
+                                    </div>
+                                </div>
+                                <button id="political-restore-defaults-btn" type="button" class="secondary">Restore Defaults</button>
+                            </fieldset>
+
+                            <section class="political-legend" aria-labelledby="political-legend-title">
+                                <h3 id="political-legend-title">Interpretation</h3>
+                                <ul>
+                                    <li><span class="political-swatch is-dominant" aria-hidden="true"></span><span><strong>Dominant</strong> — one included faction passes the fixed confidence rule.</span></li>
+                                    <li><span class="political-swatch is-disputed" aria-hidden="true"></span><span><strong>Disputed</strong> — the leading evidence is tied or lacks a sufficient lead.</span></li>
+                                    <li><span class="political-swatch is-filtered" aria-hidden="true"></span><span><strong>Filtered</strong> — a hidden or non-participant faction leads; its identity and color stay concealed.</span></li>
+                                    <li><span class="political-swatch is-unattributed" aria-hidden="true"></span><span><strong>Unattributed</strong> — evidence has no single stable faction identity.</span></li>
+                                    <li><span class="political-swatch is-indeterminate" aria-hidden="true"></span><span><strong>Indeterminate</strong> — incomplete or conflicting evidence prevents a result.</span></li>
+                                    <li><span class="political-swatch is-transparent" aria-hidden="true"></span><span><strong>Transparent</strong> — no evidence or intentionally excluded geography.</span></li>
+                                </ul>
+                            </section>
+
+                            <div class="faction-colors-widget-entry">
+                                <button id="faction-colors-widget-open-btn" type="button" aria-controls="faction-colors-widget" aria-pressed="false" disabled><span>Open Faction Colors Widget</span></button>
+                                <small id="faction-colors-widget-open-reason">Enable Political View to use this widget.</small>
+                            </div>
+
+                            <section class="faction-colors-roster" aria-labelledby="faction-colors-roster-title">
+                                <div class="faction-colors-roster-tools">
+                                    <h3 id="faction-colors-roster-title">Included factions</h3>
+                                    <div class="faction-colors-add-row">
+                                        <label for="political-add-faction-select">Add Faction</label>
+                                        <select id="political-add-faction-select" disabled>
+                                            <option value="">No hidden factions</option>
+                                        </select>
+                                        <button id="political-add-faction-btn" type="button" disabled>Add</button>
+                                    </div>
+                                    <label class="faction-colors-search" for="political-faction-search">
+                                        Search included factions
+                                        <input id="political-faction-search" type="search" autocomplete="off" disabled>
+                                    </label>
+                                    <p id="political-faction-count" class="faction-colors-count">No faction palette is available.</p>
+                                </div>
+                                <div id="political-faction-list" class="faction-colors-list"></div>
+                            </section>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </aside>
+
+    <section id="map-workspace" data-workbench-role="map" aria-label="Interactive map workspace" tabindex="-1">
+        <!-- Keep this exact element stable: Leaflet binds to it once. -->
+        <main id="map-container"></main>
+        <div id="map-readiness" class="kimap-ui" role="status" aria-live="polite" aria-atomic="true">
+            <span class="map-readiness-spinner" aria-hidden="true"></span>
+            <span id="map-readiness-label">Preparing map&hellip;</span>
+        </div>
+        <p id="selection-status" class="selection-status kimap-ui" role="status" aria-live="polite" hidden></p>
+        <div id="workbench-hud-region" role="region" aria-label="Map status">
+            <div id="workbench-scanner-slot"></div>
+        </div>
+        <div id="map-control-cluster" class="kimap-ui">
+            <div id="workbench-map-controls" role="toolbar" aria-label="Workspace controls" aria-orientation="vertical">
+                <button id="workbench-dock-toggle-btn" class="ui-control-btn" type="button" title="Open Map Tasks" aria-label="Open Map Tasks" aria-expanded="true">
+                    <svg class="workbench-control-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="M4 5.5h12M4 10h12M4 14.5h12"/>
+                    </svg>
+                    <span class="workbench-control-label">Open Map Tasks</span>
+                </button>
+                <button id="workbench-focus-map-btn" class="ui-control-btn" type="button" title="Focus Map Mode" aria-label="Focus Map Mode" aria-pressed="false">
+                    <svg class="workbench-control-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="M8 4H4v4M12 4h4v4M16 12v4h-4M8 16H4v-4"/>
+                    </svg>
+                    <span class="workbench-control-label">Focus Map Mode</span>
+                </button>
+                <button id="reset-panel-btn" class="ui-control-btn" type="button" title="Restore Default Workspace" aria-label="Restore Default Workspace">
+                    <svg class="workbench-control-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="M5 7.5A6 6 0 1 1 4.2 12M4 4v4h4"/>
+                    </svg>
+                    <span class="workbench-control-label">Restore Default Workspace</span>
+                </button>
+                <button id="workbench-inspector-toggle-btn" class="ui-control-btn" type="button" title="Open Selected Context" aria-label="Open Selected Context" aria-expanded="false">
+                    <svg class="workbench-control-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <circle cx="10" cy="10" r="6.5"/>
+                        <path d="M10 9v4.5M10 6.5h.01"/>
+                    </svg>
+                    <span class="workbench-control-label">Open Selected Context</span>
+                </button>
+            </div>
+            <div id="map-layer-family-launchers" class="map-layer-family-launchers" role="group" aria-label="Map layer families">
+                <button id="map-content-btn" class="ui-control-btn" type="button" title="Open Map Content" aria-label="Open Map Content" aria-controls="map-content-control" aria-expanded="false" aria-pressed="false" disabled>
+                    <svg class="workbench-control-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="M4 4.5h5v5H4zM11 4.5h5M11 7h5M4 12h5v3.5H4zM11 12h5M11 14.5h5"/>
+                    </svg>
+                    <span class="workbench-control-label">Map Content</span>
+                </button>
+                <button id="world-views-btn" class="ui-control-btn" type="button" title="Open World Views" aria-label="Open World Views" aria-controls="world-views-control" aria-expanded="false" aria-pressed="false" disabled>
+                    <svg class="workbench-control-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <path d="m10 3 7 4-7 4-7-4zM3 10l7 4 7-4M3 13l7 4 7-4"/>
+                    </svg>
+                    <span class="workbench-control-label">World Views</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="map-navigation-stack" class="kimap-ui">
+          <div id="map-navigation-controls" role="toolbar" aria-label="Map navigation">
+            <button id="map-zoom-in-btn" class="map-icon-control" type="button" title="Zoom in" aria-label="Zoom in">
+                <img src="%KIM_ASSET_ORIGIN%/icons/zoom-in.svg?v=2026-07-13-1" alt="">
+            </button>
+            <button id="map-zoom-out-btn" class="map-icon-control" type="button" title="Zoom out" aria-label="Zoom out">
+                <img src="%KIM_ASSET_ORIGIN%/icons/zoom-out.svg?v=2026-07-13-1" alt="">
+            </button>
+          </div>
+        </div>
+
+        <div id="map-popover-host" class="kimap-ui" aria-label="Map popovers"></div>
+
+        <div id="map-tool-shelf" class="kimap-ui" data-open="false" data-active-tab="marker" aria-label="Plan tools">
+            <button
+                id="map-tool-shelf-launcher"
+                class="map-tool-shelf-launcher"
+                type="button"
+                aria-controls="map-tool-shelf-panel"
+                aria-expanded="false"
+                title="Open Plan tools"
+            >
+                <span aria-hidden="true">&#9998;</span>
+                <span>Plan Tools</span>
+            </button>
+            <section id="map-tool-shelf-panel" aria-labelledby="map-tool-shelf-title" tabindex="-1" hidden>
+                <header class="map-tool-shelf-header">
+                    <div>
+                        <span class="workbench-eyebrow">Map tools</span>
+                        <strong id="map-tool-shelf-title">Plan Tools</strong>
+                    </div>
+                    <button id="map-tool-shelf-close-btn" class="workbench-title-control" type="button" aria-label="Close Plan tools">&times;</button>
+                </header>
+                <div class="map-tool-shelf-tabs" role="tablist" aria-label="Plan tool type">
+                    <button id="map-tool-marker-tab" type="button" role="tab" aria-selected="true" aria-controls="map-tool-marker-panel">Markers</button>
+                    <button id="map-tool-paint-tab" type="button" role="tab" aria-selected="false" aria-controls="map-tool-paint-panel" tabindex="-1">Paint</button>
+                </div>
+                <div class="map-tool-shelf-content">
+                    <section id="map-tool-marker-panel" class="map-tool-shelf-panel" role="tabpanel" aria-labelledby="map-tool-marker-tab">
+                        <p>Place one named marker at the next map click.</p>
+                        <button id="map-tool-marker-place-btn" type="button" aria-pressed="false">Place Marker</button>
+                    </section>
+                    <section id="map-tool-paint-panel" class="map-tool-shelf-panel" role="tabpanel" aria-labelledby="map-tool-paint-tab" hidden>
+                        <div id="map-tool-shelf-paint-slot" aria-label="Paint tools"></div>
+                    </section>
+                </div>
+            </section>
+        </div>
+
+        <section id="phone-town-card" class="phone-town-card kimap-ui" aria-labelledby="phone-town-card-title" tabindex="-1" hidden>
+            <header>
+                <strong id="phone-town-card-title">Town</strong>
+                <button id="phone-town-card-close" type="button" aria-label="Close town card">&times;</button>
+            </header>
+            <small id="phone-town-card-type"></small>
+            <div class="phone-town-card-actions">
+                <button id="phone-town-card-context" type="button">Open Context</button>
+                <button id="phone-town-card-copy" type="button">Copy View</button>
+            </div>
+        </section>
+
+        <!-- Town layouts cover only the protected map workspace. -->
+        <div
+            id="town-layout-backdrop"
+            class="hidden kimap-ui"
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="town-layout-title"
+            aria-hidden="true"
+            tabindex="-1"
+        >
+            <div id="town-layout-window">
+                <div class="window-header">
+                    <h2 id="town-layout-title">Town Layout</h2>
+                    <button id="close-town-layout-btn" class="close-button" type="button" aria-label="Close town layout">&times;</button>
+                </div>
+                <div id="town-layout-content">
+                    <div id="town-layout-viz"></div>
+                    <button id="town-layout-reset-btn" class="outline-button" type="button" title="Reset layout view" aria-label="Reset layout view">&#x2302;</button>
+                    <div id="layout-loading-overlay" class="hidden">
+                        <article aria-busy="true">Loading architecture&hellip;</article>
+                    </div>
+                </div>
+                <footer class="layout-footer">
+                    <small>Scroll to zoom | Drag to pan</small>
+                </footer>
+            </div>
+        </div>
+    </section>
+
+<!-- Main Info Panel -->
+<aside
+    id="info-panel" 
+    class="window-pane hidden kimap-ui"
+    data-workbench-role="inspector"
+    aria-label="Selected map context"
+    tabindex="-1"
+    x-data 
+    :class="{ 'hidden': !$store.infoPanel.isOpen }"
+>
+    <header id="info-panel-header">
+        <div id="info-panel-title-ribbon">
+            <div class="workbench-panel-identity">
+                <svg class="workbench-panel-identity-icon inspector-identity-decorative" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                    <circle cx="10" cy="10" r="6.5"/>
+                    <path d="M10 9v4.5M10 6.5h.01"/>
+                </svg>
+                <button id="phone-inspector-transparency-btn" type="button" aria-label="Inspector background transparency" aria-controls="phone-inspector-transparency" aria-expanded="false" title="Inspector background transparency" hidden>
+                    <svg class="workbench-panel-identity-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                        <circle cx="10" cy="10" r="6.5"/>
+                        <path d="M10 9v4.5M10 6.5h.01"/>
+                    </svg>
+                </button>
+                <h3 id="info-panel-title" title="Details" tabindex="-1">Details</h3>
+            </div>
+            <button id="info-panel-minimize-btn" class="workbench-title-control" type="button" aria-label="Hide context inspector" title="Hide context inspector">
+                <svg class="workbench-control-glyph" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                    <path d="M4.5 10h11"/>
+                </svg>
+            </button>
+            <button id="info-panel-clear-btn" class="workbench-title-control" type="button" aria-label="Clear selection" title="Clear selection">
+                <svg class="workbench-control-glyph" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                    <path d="M5 5l10 10M15 5 5 15"/>
+                </svg>
+            </button>
+        </div>
+        <div id="phone-inspector-transparency" role="group" aria-label="Inspector background transparency" hidden>
+            <label for="phone-inspector-transparency-range">Background transparency <output id="phone-inspector-transparency-value" for="phone-inspector-transparency-range">0%</output></label>
+            <input id="phone-inspector-transparency-range" type="range" min="0" max="70" step="1" value="0">
+        </div>
+        <div id="info-panel-utility-ribbon" role="toolbar" aria-label="Selected context actions">
+            <div id="info-panel-landmark-actions" hidden>
+                <button id="info-panel-landmark-back-btn" class="header-action-btn" type="button" title="Back" aria-label="Back">
+                    <img src="%KIM_ASSET_ORIGIN%/icons/return-back.svg?v=2026-07-13-1" alt="">
+                </button>
+            </div>
+            <div id="info-panel-reference-actions" hidden>
+                <button id="info-panel-reference-back-btn" class="header-action-btn" type="button" title="Back" aria-label="Back">
+                    <img src="%KIM_ASSET_ORIGIN%/icons/return-back.svg?v=2026-07-13-1" alt="">
+                </button>
+                <button id="info-panel-map-context-btn" class="header-action-btn context-primary-text-action" type="button">
+                    <img src="%KIM_ASSET_ORIGIN%/icons/inspector-map-context.svg?v=2026-07-13-1" alt="">
+                    <span>Map Context</span>
+                </button>
+                <button id="info-panel-return-reference-btn" class="header-action-btn" type="button" title="Return to Reference" aria-label="Return to Reference" hidden>
+                    <img src="%KIM_ASSET_ORIGIN%/icons/return-back.svg?v=2026-07-13-1" alt="">
+                </button>
+            </div>
+            <div id="info-panel-primary-actions">
+                <button
+                    id="info-panel-point-toggle-btn"
+                    class="header-action-btn"
+                    type="button"
+                    x-show="$store.infoPanel.type === 'point' && $store.infoPanel.data.hasContainingSpawn"
+                    :aria-pressed="$store.infoPanel.pointContextVisible ? 'true' : 'false'"
+                    :aria-label="$store.infoPanel.pointContextVisible ? 'Hide point data' : 'Show point data'"
+                    :title="$store.infoPanel.pointContextVisible ? 'Hide point data' : 'Show point data'"
+                    @click="$store.infoPanel.togglePointContext()"
+                >
+                    <img src="%KIM_ASSET_ORIGIN%/icons/target-reticle.svg?v=2026-07-13-1" alt="">
+                </button>
+                <button
+                    id="info-panel-zoom-btn"
+                    class="header-action-btn"
+                    type="button"
+                    :title="$store.infoPanel.zoomActionReason()"
+                    x-show="$store.infoPanel.context"
+                    :disabled="!$store.infoPanel.zoomActionEnabled()"
+                    @click="$store.infoPanel.run($store.infoPanel.zoomActionId())"
+                    :aria-label="$store.infoPanel.zoomActionLabel()"
+                >
+                    <img src="%KIM_ASSET_ORIGIN%/icons/zoom-to-town.svg?v=2026-07-13-1" alt="">
+                </button>
+                <button
+                    id="info-panel-layout-btn"
+                    class="header-action-btn context-stacked-action context-layout-action"
+                    type="button"
+                    aria-label="View Layout"
+                    :title="$store.infoPanel.actionReason('layout') || 'View Layout'"
+                    x-show="$store.infoPanel.type === 'town'"
+                    :disabled="!$store.infoPanel.actionEnabled('layout')"
+                    @click="$store.infoPanel.run('layout', $el)"
+                >
+                    <img src="%KIM_ASSET_ORIGIN%/icons/view-layouts.svg?v=2026-07-13-1" alt="">
+                    <span class="context-stacked-label" aria-hidden="true">View&#10;Layout</span>
+                </button>
+                <button
+                    id="info-panel-copy-view-btn"
+                    class="header-action-btn context-stacked-action context-copy-view-action"
+                    type="button"
+                    :title="$store.infoPanel.type === 'point' ? 'Copy exact point view' : 'Copy View'"
+                    :aria-label="$store.infoPanel.type === 'point' ? 'Copy exact point view' : 'Copy View'"
+                    x-show="$store.infoPanel.context"
+                    @click="$store.infoPanel.run('copyView', $el)"
+                >
+                    <img src="%KIM_ASSET_ORIGIN%/icons/inspector-copy-view.svg?v=2026-07-13-1" alt="">
+                    <span class="context-stacked-label" data-copy-view-label aria-hidden="true">Copy&#10;View</span>
+                </button>
+            </div>
+            <div id="info-panel-identity-actions">
+                
+                
+                <button id="info-panel-wiki-btn" class="header-action-btn" type="button" title="Wiki unavailable: no validated article URL" aria-label="Wiki unavailable: no validated article URL" disabled>
+                    <img src="%KIM_ASSET_ORIGIN%/icons/wiki-link.svg?v=2026-07-13-1" alt="">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div id="info-panel-content">
+        <div id="info-panel-landmark-content" hidden></div>
+        <div id="info-panel-reference-content" hidden></div>
+        <div id="info-panel-geographic-content">
+        <div id="info-panel-diagnostics">
+            <p x-show="$store.infoPanel.error" x-text="$store.infoPanel.error" class="context-error"></p>
+        <template x-if="$store.infoPanel.data.contextDiagnostics.length > 0">
+            <details class="neo-accordion">
+                <summary>Context notices</summary>
+                <ul class="neo-list">
+                    <template x-for="diagnostic in $store.infoPanel.data.contextDiagnostics">
+                        <li x-text="diagnostic"></li>
+                    </template>
+                </ul>
+            </details>
+        </template>
+        </div>
+
+        <section
+            id="inspector-section-point"
+            class="inspector-section"
+            aria-labelledby="inspector-point-heading"
+            x-show="$store.infoPanel.type === 'point' && (!$store.infoPanel.data.hasContainingSpawn || $store.infoPanel.pointContextVisible)"
+        >
+            <h4 id="inspector-point-heading" class="inspector-section-heading">Point</h4>
+            <dl class="inspector-fact-list">
+                <div class="inspector-fact-row"><dt>Coordinates</dt><dd x-text="'X ' + $store.infoPanel.data.pointX + ', Z ' + $store.infoPanel.data.pointZ"></dd></div>
+                <div class="inspector-fact-row"><dt>Biome</dt><dd x-text="$store.infoPanel.data.biome"></dd></div>
+            </dl>
+            <p x-show="!$store.infoPanel.data.hasContainingSpawn && !$store.infoPanel.data.scenarioAvailable" class="context-source-note">Scenario analysis unavailable; showing static geographic context.</p>
+        </section>
+
+        <section
+            id="inspector-section-overview"
+            class="inspector-section"
+            aria-labelledby="inspector-overview-heading"
+            x-show="$store.infoPanel.type !== 'point' || $store.infoPanel.data.hasContainingSpawn"
+        >
+            <div class="inspector-overview-identity">
+                <div class="inspector-overview-copy">
+                    <h4 id="inspector-overview-heading" class="inspector-section-heading">Overview</h4>
+                    <p class="inspector-reference-id" x-text="$store.infoPanel.data.stringId"></p>
+                </div>
+                <div class="inspector-media-slot" title="Context image coming later">
+                    <img src="%KIM_ASSET_ORIGIN%/icons/unfound.svg?v=2026-07-13-1" alt="">
+                </div>
+            </div>
+            <template x-if="$store.infoPanel.type === 'town'">
+                <dl class="inspector-fact-list">
+                    <div class="inspector-fact-row"><dt>Active state</dt><dd x-text="$store.infoPanel.data.currentTownName"></dd></div>
+                    <div class="inspector-fact-row" x-show="$store.infoPanel.data.instanceId"><dt>Occurrence</dt><dd class="is-monospace" x-text="$store.infoPanel.data.instanceId"></dd></div>
+                    <div class="inspector-fact-row"><dt>Owner</dt><dd x-text="$store.infoPanel.data.factionName"></dd></div>
+                    <div class="inspector-fact-row"><dt>Relation</dt><dd x-text="$store.infoPanel.data.relationVal" :class="$store.infoPanel.data.relationClass"></dd></div>
+                </dl>
+            </template>
+            <template x-if="$store.infoPanel.type === 'spawnArea' || ($store.infoPanel.type === 'point' && $store.infoPanel.data.hasContainingSpawn)">
+                <dl class="inspector-fact-list">
+                    <div class="inspector-fact-row"><dt>Spawns</dt><dd x-text="$store.infoPanel.data.spawnCount"></dd></div>
+                    <div class="inspector-fact-row"><dt>Nests</dt><dd x-text="$store.infoPanel.data.nestCount"></dd></div>
+                </dl>
+            </template>
+
+        <p x-show="!$store.infoPanel.data.scenarioAvailable" class="context-source-note">Scenario analysis unavailable; showing static geographic context.</p>
+        </section>
+
+        <section id="inspector-section-population" class="inspector-section" aria-labelledby="inspector-population-heading" x-show="$store.infoPanel.type === 'town' || $store.infoPanel.type === 'spawnArea' || $store.infoPanel.data.hasContainingSpawn">
+        <h4 id="inspector-population-heading" class="inspector-section-heading">Population</h4>
+        <details class="neo-accordion" open x-show="$store.infoPanel.data.squads && $store.infoPanel.data.squads.length > 0">
+            <summary>Squads & Populations</summary>
+            <ol class="inspector-numbered-list" role="list">
+                <template x-for="squad in $store.infoPanel.data.squads">
+                    <li>
+                        <div class="inspector-list-entry">
+                        <button class="reference-link" type="button" @click="$store.infoPanel.showReference(squad.entityType, squad.entityId, $el)" x-text="squad.name"></button>
+                        <small x-show="squad.chance < 100" style="color:#888;" x-text="'(' + squad.chance + '%)'"></small>
+                        <small class="reference-provenance" x-text="squad.status"></small>
+                        </div>
+                    </li>
+                </template>
+            </ol>
+        </details>
+
+        <template x-if="$store.infoPanel.type === 'town'">
+            <details class="neo-accordion" x-show="!$store.infoPanel.data.populationAvailable && $store.infoPanel.data.residents && $store.infoPanel.data.residents.length > 0">
+                <summary>Current Residents</summary>
+                <ol class="inspector-numbered-list" role="list">
+                    <template x-for="res in $store.infoPanel.data.residents">
+                        <li>
+                            <div class="inspector-list-entry">
+                            <button class="reference-link" type="button" @click="$store.infoPanel.showReference(res.entityType, res.entityId, $el)" x-text="res.name"></button>
+                            <small class="reference-provenance" x-text="res.status"></small>
+                            <small class="reference-authored-detail" x-text="'Value0 ' + res.value0 + ' · Value1 ' + res.value1"></small>
+                            </div>
+                        </li>
+                    </template>
+                </ol>
+            </details>
+        </template>
+        <template x-if="$store.infoPanel.type === 'town' && $store.infoPanel.data.populationAvailable">
+            <div class="inspector-presence">
+                <template x-for="group in $store.infoPanel.data.populationGroups" :key="group.id">
+                    <details class="neo-accordion" x-show="group.rows.length > 0">
+                        <summary x-text="group.label"></summary>
+                        <ol class="inspector-numbered-list" role="list">
+                            <template x-for="row in group.rows" :key="row.key">
+                                <li :title="row.name + ' · ' + row.id">
+                                    <div class="inspector-list-entry">
+                                    <button class="reference-link" type="button" :disabled="!row.navigable" @click="$store.infoPanel.showReference(row.entityType, row.id, $el)" x-text="row.name"></button>
+                                    <small class="reference-provenance" x-text="row.detail"></small>
+                                    <small class="reference-authored-detail" x-text="row.factionText"></small>
+                                    <small class="reference-provenance" x-text="row.provenance"></small>
+                                    </div>
+                                </li>
+                            </template>
+                        </ol>
+                    </details>
+                </template>
+                <template x-for="note in $store.infoPanel.data.populationNotes" :key="note">
+                    <p class="context-source-note" x-text="note"></p>
+                </template>
+            </div>
+        </template>
+        </section>
+
+        <section id="inspector-section-environment" class="inspector-section" aria-labelledby="inspector-environment-heading" x-show="$store.infoPanel.type === 'spawnArea' || $store.infoPanel.data.hasContainingSpawn">
+            <h4 id="inspector-environment-heading" class="inspector-section-heading">Environment &amp; World</h4>
+            <template x-if="$store.infoPanel.type === 'spawnArea' || $store.infoPanel.data.hasContainingSpawn">
+                <details class="neo-accordion inspector-fact-accordion" open>
+                    <summary>Environment &amp; Resources</summary>
+                    <div class="inspector-world-facts">
+                        <section class="inspector-world-group" aria-labelledby="inspector-weather-label">
+                            <h5 id="inspector-weather-label"><img src="%KIM_ASSET_ORIGIN%/icons/icon-weather.svg?v=2026-07-13-1" alt="">Weather</h5>
+                            <ul class="inspector-weather-list" role="list" x-show="$store.infoPanel.data.weatherEffects.length > 0">
+                                <template x-for="effect in $store.infoPanel.data.weatherEffects" :key="effect.label">
+                                    <li><img :src="effect.icon" alt=""><span x-text="effect.label"></span></li>
+                                </template>
+                            </ul>
+                            <template x-for="notice in $store.infoPanel.data.weatherNotices" :key="notice">
+                                <p class="inspector-weather-notice" x-text="notice"></p>
+                            </template>
+                        </section>
+                        <section class="inspector-world-group" x-show="$store.infoPanel.data.fertilityList.length > 0" aria-labelledby="inspector-fertility-label">
+                            <h5 id="inspector-fertility-label"><img src="%KIM_ASSET_ORIGIN%/icons/icon-fertility.svg?v=2026-07-13-1" alt="">Fertility</h5>
+                            <dl class="inspector-fact-list">
+                                <template x-for="item in $store.infoPanel.data.fertilityList">
+                                    <div class="inspector-fact-row inspector-icon-fact">
+                                        <dt><img :src="item.icon" alt=""><span x-text="item.label"></span></dt>
+                                        <dd x-text="item.value" :style="'color: ' + item.color"></dd>
+                                    </div>
+                                </template>
+                            </dl>
+                        </section>
+                        <section class="inspector-world-group" x-show="$store.infoPanel.data.resourceList.length > 0" aria-labelledby="inspector-resources-label">
+                            <h5 id="inspector-resources-label"><img src="%KIM_ASSET_ORIGIN%/icons/icon-mining.svg?v=2026-07-13-1" alt="">Resources</h5>
+                            <dl class="inspector-fact-list">
+                                <template x-for="res in $store.infoPanel.data.resourceList">
+                                    <div class="inspector-fact-row inspector-icon-fact">
+                                        <dt><img :src="res.icon" alt=""><span x-text="res.label"></span></dt>
+                                        <dd x-text="res.value" :style="'color: ' + res.color"></dd>
+                                    </div>
+                                </template>
+                            </dl>
+                        </section>
+                    </div>
+                </details>
+            </template>
+        </section>
+
+        <section id="inspector-section-scenario" class="inspector-section" aria-labelledby="inspector-scenario-heading" x-show="$store.infoPanel.type === 'town'">
+            <h4 id="inspector-scenario-heading" class="inspector-section-heading">Scenario &amp; Overrides</h4>
+            <template x-if="$store.infoPanel.type === 'town'">
+                <details class="neo-accordion inspector-fact-accordion">
+                    <summary>Override Network</summary>
+                    <div class="inspector-override-network">
+                        <p class="inspector-override-notice" x-show="$store.infoPanel.data.overrideNotice" x-text="$store.infoPanel.data.overrideNotice"></p>
+                        <section class="inspector-override-path" aria-labelledby="inspector-current-path-label" x-show="$store.infoPanel.data.overrideReportState === 'available'">
+                            <h5 id="inspector-current-path-label">Current Path</h5>
+                            <template x-for="step in $store.infoPanel.data.overridePath">
+                                <div class="inspector-override-step">
+                                    <strong x-text="step.townName"></strong>
+                                    <small x-show="step.reason !== 'Base Town'" x-text="'if: ' + step.reason"></small>
+                                </div>
+                            </template>
+                        </section>
+                        <template x-for="diagnostic in $store.infoPanel.data.overrideDiagnostics">
+                            <p class="inspector-override-diagnostic" x-text="diagnostic"></p>
+                        </template>
+                        <section class="inspector-override-branches" aria-labelledby="inspector-branches-label" x-show="$store.infoPanel.data.overrideReportState === 'available'">
+                            <h5 id="inspector-branches-label">Possible Branches</h5>
+                            <p class="is-unavailable" x-show="$store.infoPanel.data.nextOverrides.length === 0">Final state. No further overrides.</p>
+                            <ul class="inspector-override-branch-list" x-show="$store.infoPanel.data.nextOverrides.length > 0">
+                                <template x-for="branch in $store.infoPanel.data.nextOverrides">
+                                    <li>
+                                        <header class="inspector-override-branch-header">
+                                            <strong x-text="branch.name"></strong>
+                                            <span><small x-text="branch.status"></small><button class="action-btn" type="button" @click="$store.infoPanel.selectTown(branch.id)">Preview</button></span>
+                                        </header>
+                                        <ul class="inspector-condition-list">
+                                            <template x-for="cond in branch.conditions">
+                                                <li :data-met="String(cond.met)"><span aria-hidden="true" x-text="cond.met ? '✓' : '×'"></span><span x-text="cond.text"></span></li>
+                                            </template>
+                                        </ul>
+                                        <p class="inspector-dead-end" x-show="branch.isImplausible" x-text="'Dead End: ' + branch.implausibilityReason"></p>
+                                    </li>
+                                </template>
+                            </ul>
+                        </section>
+                    </div>
+                </details>
+            </template>
+        </section>
+        </div>
+    </div>
+</aside>
+<nav id="phone-belt" class="kimap-ui" aria-label="Phone map routes" hidden>
+    <button id="phone-tasks-btn" type="button" data-phone-route="tasks" aria-label="Tasks"><span aria-hidden="true">☷</span><small>Tasks</small></button>
+    <button id="phone-layers-btn" type="button" data-phone-route="layersTray" aria-label="Layers"><span aria-hidden="true">▤</span><small>Layers</small></button>
+    <button id="phone-plan-btn" type="button" data-phone-route="planTray" aria-label="Plan"><span aria-hidden="true">✎</span><small>Plan</small></button>
+    <button id="phone-reports-btn" type="button" data-phone-route="reportsTray" aria-label="Reports"><span aria-hidden="true">◎</span><small>Reports</small></button>
+    <button id="phone-context-btn" type="button" data-phone-route="inspector" aria-label="Context" disabled><span aria-hidden="true">◉</span><small>Context</small></button>
+</nav>
+<section id="phone-layers-tray" class="phone-tray kimap-ui" aria-label="Layers" tabindex="-1" hidden inert>
+    <header><strong>Layers</strong><button type="button" data-phone-close aria-label="Close Layers">&times;</button></header>
+    <section class="phone-layer-section" aria-labelledby="phone-map-content-heading">
+        <h3 id="phone-map-content-heading">Map Content</h3>
+        <span id="phone-map-content-summary">Loading…</span>
+    </section>
+    <section class="phone-layer-section" aria-labelledby="phone-world-views-heading">
+        <h3 id="phone-world-views-heading">World Views</h3>
+        <span id="phone-world-views-summary">Loading…</span>
+    </section>
+    <div class="phone-tray-actions"><button id="phone-map-content-btn" type="button">Map Content</button><button id="phone-world-views-btn" type="button">World Views</button></div>
+</section>
+<section id="phone-reports-tray" class="phone-tray kimap-ui" aria-label="Reports" tabindex="-1" hidden inert>
+    <header><strong>Point Probe reports</strong><button type="button" data-phone-close aria-label="Close Reports">&times;</button></header>
+    <label for="phone-report-subject">Subject</label><select id="phone-report-subject"></select>
+    <p>Tap the map for a report at that point.</p>
+    <div class="phone-tray-actions"><button id="phone-report-settings-btn" type="button">Report Settings</button><button id="phone-scorecard-btn" type="button" disabled>Global Scorecard</button></div>
+    <small id="phone-scorecard-reason"></small>
+</section>
+<section id="phone-scorecard-panel" class="phone-full-panel kimap-ui" aria-label="Global Political Scorecard" tabindex="-1" hidden inert>
+    <header><strong>Global Political Scorecard</strong><button type="button" data-phone-close aria-label="Close Scorecard">&times;</button></header>
+    <div id="phone-scorecard-slot"></div>
+</section>
+</div>
+<!-- End of Viewport Workbench -->
+</div>
+<!-- End of App Container -->
+<!-- Player Marker Panel -->
+<div 
+    id="player-marker-panel" 
+    class="window-pane hidden" 
+    style="width: 320px; position: absolute; top: 15vh; left: 50vw; transform: translateX(-50%); z-index: 9999; background: var(--pico-card-background-color, #1a1c23); border: 1px solid var(--pico-muted-border-color, #444); border-radius: 8px; display: flex; flex-direction: column; height: max-content; box-shadow: 0 4px 15px rgba(0,0,0,0.5);"
+>
+    <div id="player-marker-panel-header" class="window-header" style="border-bottom: 1px solid var(--pico-muted-border-color, #444); background: rgba(0,0,0,0.2);">
+        <h3 id="pm-panel-title" style="margin:0; color:var(--pico-color);">Marker</h3>
+        <div class="header-controls-group">
+            <button id="pm-panel-zoom-btn" class="header-action-btn" title="Zoom to Marker">
+               <img src="%KIM_ASSET_ORIGIN%/icons/zoom-to-town.svg?v=2026-07-13-1" alt="Zoom">
+            </button>
+            <button class="close-button" onclick="document.getElementById('player-marker-panel').classList.add('hidden')">&times;</button>
+        </div>
+    </div>
+    <div id="pm-panel-content" style="padding:15px; font-size: 0.9rem;"></div>
+</div>
+<!-- Modal Backdrop  -->
+<div id="unified-backdrop" class="hidden">
+<div id="unified-shell">
+<header id="unified-header">
+  <div class="theater-parent-row">
+    <nav id="unified-groups" aria-label="Theater sections"></nav>
+    <div class="header-controls">
+      <button id="unified-help-btn" class="theater-utility-btn" type="button" aria-label="Open Help Guide" title="Help Guide"></button>
+      <button id="unified-close-btn" class="close-button" type="button" aria-label="Close window" title="Close window">&times;</button>
+    </div>
+  </div>
+  <div class="tab-carousel-container">
+    <button id="tabs-scroll-left" class="tab-scroll-btn hidden" type="button" aria-label="Scroll theater destinations left">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    
+    <nav id="unified-tabs" aria-label="Theater destinations"></nav>
+
+    <button id="tabs-scroll-right" class="tab-scroll-btn hidden" type="button" aria-label="Scroll theater destinations right">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
+  </div>
+  <h2 id="unified-current-title" class="unified-visually-hidden">KiMap theater</h2>
+</header>
+<main id="unified-stage">
+</main>
+</div>
+</div>
+<!-- Start of Modal Windows  -->
+<div id="pane-warehouse" style="display:none;">
+<!-- Individual Modals  -->
+<!-- Content Browser Modal -->
+<div id="pane-content-browser" class="window-pane">
+<div id="browser-content">
+<aside class="browser-sidebar" id="browser-sidebar">
+</aside>
+<div class="browser-main">
+<div class="browser-controls">
+  <input type="text" id="browser-search" placeholder="Search items..." aria-label="Search">
+</div>
+<div class="browser-workspace">
+<div class="browser-list" id="browser-list">
+<div class="empty-state">
+  <p>Select a category</p>
+</div>
+</div>
+<div class="browser-details" id="browser-details">
+<div class="empty-state">
+  <p>Select an item to inspect</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Research Tree Modal  -->
+<div id="pane-research" class="window-pane">
+    <div id="research-workspace">
+        <section id="research-sidebar" class="research-region research-region--catalog" aria-labelledby="research-catalog-heading">
+            <header class="research-region__header">
+                <h2 id="research-catalog-heading">Research catalog</h2>
+            </header>
+            <div id="research-info-panel" class="research-catalog">
+                <p class="research-empty" role="status">Loading research catalog…</p>
+            </div>
+        </section>
+        <section id="research-details" class="research-region research-region--details" aria-labelledby="research-details-heading">
+            <header class="research-region__header">
+                <h2 id="research-details-heading">Research details</h2>
+            </header>
+            <div id="research-details-panel" class="research-details-panel">
+                <p class="research-details-empty">Select a technology to inspect its requirements and unlocks.</p>
+            </div>
+        </section>
+        <section id="research-main" class="research-region research-region--board" aria-labelledby="research-board-heading">
+            <header class="research-region__header">
+                <h2 id="research-board-heading">Research tree</h2>
+            </header>
+            <form id="research-jump-form" class="research-jump-toolbar" data-research-jump-form aria-label="Jump to a research section">
+                <label for="research-jump-category">
+                    <span>Category</span>
+                    <select id="research-jump-category" name="research-jump-category" data-research-jump-category disabled>
+                        <option>Loading categories…</option>
+                    </select>
+                </label>
+                <label for="research-jump-level">
+                    <span>Level</span>
+                    <select id="research-jump-level" name="research-jump-level" data-research-jump-level disabled>
+                        <option>Loading levels…</option>
+                    </select>
+                </label>
+                <button id="research-jump-submit" type="submit" data-research-jump-submit aria-controls="research-tree-container" disabled>Jump</button>
+            </form>
+            <div id="research-tree-container" class="research-board-host">
+                <p class="research-empty" role="status">Loading research tree…</p>
+            </div>
+        </section>
+    </div>
+</div>
+<!-- Paint Manager Modal -->
+<div id="pane-paint-tools" class="window-pane document-manager-pane">
+    <div id="paint-content" class="document-manager">
+        <div id="paint-list-column" class="document-manager__collection">
+            <div id="paint-list-container" class="document-manager__list">
+                <div class="empty-state">
+                    <p>No drawings yet.</p>
+                </div>
+            </div>
+            <div id="paint-list-controls" class="document-manager__item-actions">
+                <button id="paint-undo-btn" class="kimap-document-action" title="Undo last creation">
+                    <span class="kimap-document-icon kimap-document-icon--paint-undo" aria-hidden="true"></span>
+                    <span>Undo Last</span>
+                </button>
+                <button id="paint-delete-btn" disabled class="danger-button kimap-document-action" title="Delete selected">
+                    <span class="kimap-document-icon kimap-document-icon--paint-delete" aria-hidden="true"></span>
+                    <span>Delete Selected</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="paint-io-column" class="document-manager__io">
+            <div class="document-manager__activity">
+                <button id="paint-clear-all-btn" class="danger-button document-manager__clear kimap-document-action">
+                    <span class="kimap-document-icon kimap-document-icon--clear-data" aria-hidden="true"></span>
+                    <span>Clear All Drawings</span>
+                </button>
+                <div id="paint-logger" class="document-manager__logger">
+                    <header>Activity Log</header>
+                    <div id="paint-log-content" class="document-manager__logger-content">
+                        <p class="log-entry system">Ready to plan.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="document-manager__documents document-form-surface" data-document-tabs="paint">
+                <div class="document-manager__tablist" role="tablist" aria-label="Paint plan documents" aria-orientation="horizontal">
+                    <button id="paint-save-tab" class="document-manager__tab" type="button" role="tab" data-document-tab="save" aria-selected="true" aria-controls="paint-export-section" tabindex="0">
+                        <span class="kimap-document-icon kimap-document-icon--save-folder" aria-hidden="true"></span>
+                        <span>Export Plan</span>
+                    </button>
+                    <button id="paint-load-tab" class="document-manager__tab" type="button" role="tab" data-document-tab="load" aria-selected="false" aria-controls="paint-import-section" tabindex="-1">
+                        <span class="kimap-document-icon kimap-document-icon--load-folder" aria-hidden="true"></span>
+                        <span>Import Plan</span>
+                    </button>
+                </div>
+                <div class="document-manager__panel-deck">
+                    <section id="paint-export-section" class="document-manager__panel" role="tabpanel" aria-labelledby="paint-save-tab">
+                        <p id="paint-document-status" class="document-manager__notice">Ready for file import or export.</p>
+                        
+                        <div class="document-form-row document-form-row--manager-file">
+                            <button id="paint-file-export-btn" class="kimap-document-action">
+                                <span class="kimap-document-icon kimap-document-icon--export-cloud" aria-hidden="true"></span>
+                                <span>Export JSON</span>
+                            </button>
+                            
+                        </div>
+                    </section>
+
+                    <section id="paint-import-section" class="document-manager__panel" role="tabpanel" aria-labelledby="paint-load-tab" hidden>
+                        <div class="document-form-row document-form-row--manager-file">
+                            <label class="file-button document-form-file-action kimap-document-action" for="paint-file-import-input">
+                                <span class="kimap-document-icon kimap-document-icon--import-cloud" aria-hidden="true"></span>
+                                <span>Import JSON</span>
+                            </label>
+                            <input type="file" id="paint-file-import-input" accept="application/json,.json" hidden>
+                        </div>
+                        <p class="warning-text document-manager__notice">Loading replaces the current drawings.</p>
+                        
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Player Markers Modal -->
+<div id="pane-player-markers" class="window-pane document-manager-pane">
+    <div id="pm-content" class="document-manager">
+        <div id="pm-list-column" class="document-manager__collection">
+            <div id="pm-list-container" class="document-manager__list">
+                <div class="empty-state">
+                    <p>No markers placed yet.</p>
+                </div>
+            </div>
+            <div id="pm-list-controls" class="document-manager__item-actions">
+                <button id="pm-rename-btn" disabled class="kimap-document-action">
+                    <span class="kimap-document-icon kimap-document-icon--marker-rename" aria-hidden="true"></span>
+                    <span>Rename</span>
+                </button>
+                <button id="pm-edit-btn" disabled class="kimap-document-action">
+                    <span class="kimap-document-icon kimap-document-icon--marker-edit" aria-hidden="true"></span>
+                    <span>Edit Notes</span>
+                </button>
+                <button id="pm-delete-btn" disabled class="danger-button kimap-document-action">
+                    <span class="kimap-document-icon kimap-document-icon--marker-delete" aria-hidden="true"></span>
+                    <span>Delete</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="pm-io-column" class="document-manager__io">
+            <div class="document-manager__activity">
+                <button id="pm-clear-all-btn" class="danger-button document-manager__clear kimap-document-action">
+                    <span class="kimap-document-icon kimap-document-icon--clear-data" aria-hidden="true"></span>
+                    <span>Clear All Markers</span>
+                </button>
+                <div id="pm-logger" class="document-manager__logger">
+                    <header>Activity Log</header>
+                    <div id="pm-log-content" class="document-manager__logger-content">
+                        <p class="log-entry system">System ready.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="document-manager__documents document-form-surface" data-document-tabs="markers">
+                <div class="document-manager__tablist" role="tablist" aria-label="Marker set documents" aria-orientation="horizontal">
+                    <button id="pm-save-tab" class="document-manager__tab" type="button" role="tab" data-document-tab="save" aria-selected="true" aria-controls="pm-export-section" tabindex="0">
+                        <span class="kimap-document-icon kimap-document-icon--save-folder" aria-hidden="true"></span>
+                        <span>Export Markers</span>
+                    </button>
+                    <button id="pm-load-tab" class="document-manager__tab" type="button" role="tab" data-document-tab="load" aria-selected="false" aria-controls="pm-import-section" tabindex="-1">
+                        <span class="kimap-document-icon kimap-document-icon--load-folder" aria-hidden="true"></span>
+                        <span>Import Markers</span>
+                    </button>
+                </div>
+                <div class="document-manager__panel-deck">
+                    <section id="pm-export-section" class="document-manager__panel" role="tabpanel" aria-labelledby="pm-save-tab">
+                        <p id="pm-document-status" class="document-manager__notice">Ready for file import or export.</p>
+                        
+                        <div class="document-form-row document-form-row--manager-file">
+                            <button id="pm-file-export-btn" class="kimap-document-action">
+                                <span class="kimap-document-icon kimap-document-icon--export-cloud" aria-hidden="true"></span>
+                                <span>Export JSON</span>
+                            </button>
+                            
+                        </div>
+                    </section>
+
+                    <section id="pm-import-section" class="document-manager__panel" role="tabpanel" aria-labelledby="pm-load-tab" hidden>
+                        <div class="document-form-row document-form-row--manager-file">
+                            <label class="file-button document-form-file-action kimap-document-action" for="pm-file-import-input">
+                                <span class="kimap-document-icon kimap-document-icon--import-cloud" aria-hidden="true"></span>
+                                <span>Import JSON</span>
+                            </label>
+                            <input type="file" id="pm-file-import-input" accept="application/json,.json" hidden>
+                        </div>
+                        <p class="warning-text document-manager__notice">Loading replaces all current markers.</p>
+                        
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- User Preferences Modal -->
+<div id="pane-user-prefs" class="window-pane">
+    <div id="prefs-content">
+        <section class="prefs-session-strip" aria-label="Current session">
+            <p class="prefs-session-item">
+                <span class="prefs-session-label">Manifest</span>
+                <strong id="prefs-manifest-id">vanilla</strong>
+            </p>
+            <p class="prefs-session-item prefs-session-document" data-scenario-document-state="new">
+                <span class="prefs-session-status-dot" aria-hidden="true"></span>
+                <span class="prefs-session-label">Scenario</span>
+                <strong id="prefs-loaded-save" aria-live="polite">New scenario.</strong>
+            </p>
+        </section>
+        <div class="document-form-row document-form-row--manager-file">
+            <button type="button" data-scenario-export>Export scenario JSON</button>
+            <label class="file-button" for="prefs-scenario-import">Import scenario JSON</label>
+            <input id="prefs-scenario-import" data-scenario-import type="file" accept=".json,application/json" hidden>
+        </div>
+        
+        
+
+        
+    </div>
+</div>
+<!-- Global Status Modal -->
+<div id="pane-global-status" class="window-pane">
+    <div id="status-workspace">
+        <div id="status-main-view">
+            <div class="status-column" id="status-col-relations">
+                <h3>Faction Relations
+                    <span class="help-badge help-trigger" data-tooltip-title="Faction Relations" 
+                          data-tooltip-content="Tracks your standing. +60 is Ally, -10 is Enemy." 
+                          data-help-section="guide-factions">?</span>
+                </h3>
+                <div class="status-list" id="global-relations-list"></div>
+            </div>
+            
+            <div class="status-column" id="status-col-characters">
+                <h3>Character Status</h3>
+                <div class="status-list" id="global-characters-list"></div>
+            </div>
+            
+            <div class="status-column" id="status-col-states">
+                <h3>World States</h3>
+                <div class="status-list" id="global-states-list"></div>
+            </div>
+        </div>
+
+        <footer id="status-footer">
+            <div id="verbose-log-container">
+                <div class="tab-header">
+                    <button class="tab-button active" data-tab="readable">Readable Log</button>
+                    <button class="tab-button" data-tab="raw">Raw Data</button>
+                </div>
+                <div id="verbose-log-readable" class="log-content active"></div>
+                <div id="verbose-log-raw" class="log-content"></div>
+            </div>
+
+            <div id="export-controls-container">
+                <h4>History Controls</h4>
+                <div class="history-buttons">
+                    <button id="undo-btn" class="history-button" title="Undo Last Change">Undo</button>
+                    <button id="redo-btn" class="history-button" title="Redo Last Change">Redo</button>
+                </div>
+                <button id="export-history-btn" data-scenario-export class="apply-button kimap-document-action">
+                    <span class="kimap-document-icon kimap-document-icon--export-cloud" aria-hidden="true"></span>
+                    <span>Export Scenario JSON</span>
+                </button>
+                <label class="file-button kimap-document-action" for="import-history-file">
+                    <span class="kimap-document-icon kimap-document-icon--import-cloud" aria-hidden="true"></span>
+                    <span>Import Scenario JSON</span>
+                </label>
+                <input type="file" id="import-history-file" data-scenario-import accept="application/json,.json" hidden>
+            </div>
+        </footer>
+    </div>
+</div>
+<!-- Infamy Tracker Window -->
+<div id="pane-infamy" class="window-pane">
+    <div id="infamy-content">
+        <div class="infamy-column">
+            <h3>World Influence</h3>
+            <div id="infamy-influence-list" class="infamy-list">
+                <p><em>Calculating influence...</em></p>
+            </div>
+        </div>
+
+        <div class="infamy-column">
+            <h3>Bounties & Notoriety</h3>
+            <div id="infamy-bounty-list" class="infamy-list">
+                <p><em>Scanning bounties...</em></p>
+            </div>
+        </div>
+
+        <div class="infamy-column">
+            <h3>Spawn Activity</h3>
+            <div id="infamy-spawn-list" class="infamy-list">
+                <p><em>Analyzing world states...</em></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Power Ranks Modal  -->
+<div id="pane-power-ranks" class="window-pane">
+    <div id="power-ranks-content">
+        </div>
+</div>
+<!-- World History Modal  -->
+<div id="pane-world-history" class="window-pane">
+    <div id="world-history-content">
+        <div id="world-history-log">
+            <p class="log-entry system">History tracking started...</p>
+        </div>
+    </div>
+</div>
+<!-- Town Overrides Modal -->
+<div id="pane-overrides" class="window-pane">
+    <div id="overrides-workspace">
+        <div id="overrides-sidebar">
+            <div class="sidebar-header">
+                <h4>Base Towns</h4>
+                <small>Towns with override states</small>
+            </div>
+            <div id="override-list-container">
+                <ul id="override-town-list"></ul>
+            </div>
+        </div>
+
+        <div id="overrides-main">
+            <nav class="pane-tabs" id="overrides-tabs">
+                <button class="pane-tab active" data-tab="path">Path List</button>
+                <button class="pane-tab" data-tab="flowchart">Flowchart</button>
+            </nav>
+            
+            <div id="override-content-wrapper">
+                <div id="override-path-display" class="tab-content active">
+                    <div class="empty-state">
+                        <p>Select a town from the left to analyze its states.</p>
+                    </div>
+                </div>
+                <div id="override-flowchart-display" class="tab-content">
+                    <div class="empty-state">
+                        <p>Select a town to view the logic graph.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Equipment Locker Modal  -->
+<div id="pane-equipment" class="window-pane">
+    <div id="equipment-locker-content">
+        <div id="equipment-list-column" class="equipment-column"></div>
+        <div id="equipment-simulation-column" class="equipment-column">
+            </div>
+    </div>
+</div>
+<!-- Environment Info Modal  -->
+<div id="pane-environment" class="window-pane">
+    <div id="environment-content">
+        <div id="env-col-details" class="env-column">
+            <h3>Details</h3>
+            <div id="env-details-list" class="env-list" aria-live="polite">
+                <div class="empty-state">
+                    <p>Select an area in either list to inspect its environment report.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="env-col-seasons" class="env-column">
+            <h3>Seasons & Weather</h3>
+            <div id="env-seasons-list" class="env-list"></div>
+        </div>
+
+        <div id="env-col-resources" class="env-column">
+            <h3>Resources & Fertility</h3>
+            <div id="env-resources-list" class="env-list"></div>
+        </div>
+    </div>
+</div>
+<!-- Global Settings Modal  -->
+<div id="pane-global-settings" class="window-pane">
+<div id="global-settings-content">
+<aside class="settings-sidebar" id="settings-sidebar">
+</aside>
+<main class="settings-main" id="settings-main">
+<div class="empty-state">
+<h3>
+Global Constants
+</h3>
+<p>
+Select a category from the left to edit game constants.
+</p>
+</div>
+</main>
+</div>
+</div>
+<!-- Help Modal -->
+<div 
+  id="pane-help" 
+  class="window-pane"
+>
+<div 
+  id="help-window-content"
+>
+<nav 
+  id="help-toc-container"
+>
+<h4>
+Contents
+</h4>
+<ul 
+  id="help-toc-list"
+>
+<li><a href="#section-intro">Introduction</a></li>
+<li><a href="#section-management">Data Management</a></li>
+<li><a href="#section-markers">Player Markers</a></li>
+<li><a href="#section-overlays">Overlays</a>
+    <ul><li><a href="#guide-political-view">Political View — Experimental</a></li></ul>
+</li>
+<li><a href="#guide-context-lists">Context Lists</a></li>
+<li><a href="#guide-factions">Faction Mechanics</a></li>
+<li><a href="#guide-characters">Character Status</a></li>
+</ul>
+</nav>
+<article 
+  id="help-article"
+>
+</article>
+</div>
+</div>
+</div>
+<!-- End of Modal Windows! -->
+<!-- Add Tooltips -->
+<div 
+  id="kim-tooltip"
+>
+</div>
+<!-- Secret Sauce -->
+<script src="/vendor/leaflet/leaflet.js"></script>
+<script src="libs/tga-codec-main/tga.js"></script>
+<script src="/vendor/d3/d3.min.js"></script>
+<script type="module" src="dist/bundle.js?v=2026-11-07-vanilla-r2-v1"></script>
+<!-- Done -->
+</body>
+</html>

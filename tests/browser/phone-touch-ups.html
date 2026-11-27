@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Phone touch-ups regression</title>
+    <style>
+      body {
+        margin: 0;
+        font: 13px system-ui;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px;
+      }
+      iframe {
+        display: block;
+        width: 390px;
+        height: 844px;
+        border: 1px solid #777;
+      }
+      pre {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <button id="run" type="button">Run phone touch-up checks</button>
+      <output id="status">Waiting for local application.</output>
+    </header>
+    <iframe id="map" src="/" title="Local KiMap under test"></iframe>
+    <pre id="results"></pre>
+    <script type="module" src="./phone-touch-ups-fixture.js"></script>
+  </body>
+</html>

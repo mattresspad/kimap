@@ -1,0 +1,221 @@
+/* modules/help-guide.css */
+
+/* 1. Window Layout */
+
+#help-window-content {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  width: 100%;
+  height: 100%; /* VITAL: Forces it to fill the parent pane */
+  min-height: 0;
+  overflow: hidden;
+  text-align: left;
+}
+
+/* 2. Sidebar (Table of Contents) */
+#help-toc-container {
+  min-width: 0;
+  min-height: 0;
+  background-color: var(--pico-background-color);
+  border-right: 1px solid var(--pico-muted-border-color);
+  padding: 1rem;
+  overflow-y: auto;
+  display: block !important;
+}
+
+#help-toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+}
+
+#help-toc-list li {
+  display: block; /* Forces new line */
+  width: 100%; /* Ensure links take full width */
+  margin-bottom: 0.5rem;
+}
+
+/* Sidebar styling tweaks */
+#help-toc-list a {
+  display: block; /* Makes the whole area clickable */
+  padding: 0.25rem 0;
+  color: var(--pico-muted-color);
+  text-decoration: none;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+/* Nested Lists (Sub-sections) */
+#help-toc-list ul {
+  /* FIX 5: Ensure sub-lists also stack vertically */
+  display: flex !important;
+  flex-direction: column !important;
+
+  margin-left: 1rem;
+  border-left: 1px solid var(--pico-muted-border-color);
+  padding-left: 0.5rem;
+  margin-bottom: 0.5rem;
+  margin-top: 0.25rem;
+}
+#help-toc-list a {
+  display: block;
+  padding: 0.25rem 0;
+  color: var(--pico-muted-color);
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+#help-toc-list a:hover {
+  color: var(--pico-primary);
+  transform: translateX(5px);
+  transition: transform 0.2s;
+}
+
+/* 3. Article Content (Wiki Style) */
+#help-article {
+  min-width: 0;
+  min-height: 0;
+  padding: 2rem;
+  overflow-y: auto; /* Allows the text to scroll */
+  scroll-behavior: smooth;
+  height: 100%; /* Ensure it takes full height of the grid cell */
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
+}
+
+#help-article :where(h5, dt) {
+  color: var(--pico-contrast);
+  font-weight: 700;
+}
+
+#help-article h5 {
+  margin-block: 1.5rem 0.5rem;
+}
+
+#help-article .help-political-outcomes dd {
+  margin: 0.25rem 0 1rem;
+}
+
+#help-article [tabindex="-1"]:focus-visible {
+  outline: 2px solid var(--pico-primary);
+  outline-offset: 3px;
+}
+
+/* Consume the Workbench's responsive authority; no second breakpoint policy. */
+body:has(#viewport-workbench[data-layout-class="narrow"]) #help-window-content {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 25%) minmax(0, 1fr);
+}
+
+body:has(#viewport-workbench[data-layout-class="narrow"]) #help-toc-container {
+  padding: 0.5rem 0.75rem;
+  border-right: 0;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  overscroll-behavior: contain;
+}
+
+body:has(#viewport-workbench[data-layout-class="narrow"]) #help-article {
+  padding: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #help-article {
+    scroll-behavior: auto;
+  }
+
+  #help-article .target-highlight {
+    animation: none;
+  }
+}
+
+.help-section {
+  margin-bottom: 2rem;
+  padding-top: 1rem;
+  /* Add a visual divider at the bottom of every section */
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding-bottom: 2rem;
+}
+
+/* Remove divider from the last section so it doesn't look weird */
+.help-section:last-of-type {
+  border-bottom: none;
+}
+
+/* Improve header spacing */
+#help-article h3 {
+  margin-top: 0;
+  color: var(--pico-contrast);
+  border-bottom: 2px solid var(--pico-primary); /* Stronger header underline */
+  padding-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+#help-article h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--pico-primary-hover);
+}
+
+#help-article p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+/* 4. Image Handling */
+figure {
+  margin: 0;
+  margin-bottom: 1rem;
+}
+
+figcaption {
+  font-size: 0.8em;
+  color: var(--pico-muted-color);
+  text-align: center;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Float Right Image Class */
+.help-img-right {
+  float: right;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  max-width: 40%;
+  border: 1px solid var(--pico-muted-border-color);
+  padding: 5px;
+  background-color: var(--pico-background-color);
+  border-radius: var(--pico-border-radius);
+}
+
+.help-img-right img {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 10px;
+  background: var(--kimap-surface-muted, var(--pico-background-color));
+  filter: var(--kimap-icon-filter, invert(1));
+}
+
+/* Clearfix for floats */
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+/* Highlight Animation for Deep Links */
+@keyframes highlight-fade {
+  0% {
+    background-color: rgba(56, 142, 60, 0.3);
+  } /* Green tint */
+  100% {
+    background-color: transparent;
+  }
+}
+
+.target-highlight {
+  animation: highlight-fade 2s ease-out;
+  border-radius: var(--pico-border-radius);
+}

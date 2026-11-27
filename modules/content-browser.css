@@ -1,0 +1,120 @@
+/* kimap/modules/content-browser.css */
+
+#browser-content {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 220px 1fr; /* Sidebar | Main Content */
+    overflow: hidden;
+}
+
+/* 1. Category Sidebar */
+.browser-sidebar {
+    background-color: var(--pico-background-color);
+    border-right: 1px solid var(--pico-muted-border-color);
+    padding: 0.5rem;
+    overflow-y: auto;
+    min-height: 0; /* CRITICAL: Allows scrolling within grid */
+}
+
+.browser-cat-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9em;
+    background: none;
+    border: none;
+    color: var(--pico-muted-color);
+    cursor: pointer;
+    border-radius: var(--pico-border-radius);
+    margin-bottom: 2px;
+}
+
+.browser-cat-btn:hover { background-color: var(--pico-card-background-color); color: var(--pico-color); }
+.browser-cat-btn.active {
+    background-color: var(--pico-primary);
+    color: var(--kimap-accent-contrast, var(--pico-primary-inverse));
+}
+
+/* 2. Main Area Container */
+.browser-main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0; /* CRITICAL: Prevents flex items from overflowing horizontally */
+    overflow: hidden;
+}
+
+/* 3. Search Bar & Controls */
+.browser-controls {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    background-color: var(--pico-card-background-color);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0; /* Don't shrink the header */
+}
+
+.browser-controls input[type="text"] {
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+/* Toggle Switch Styling */
+.filter-toggle {
+    display: flex;
+    align-items: center;
+    font-size: 0.85em;
+    color: var(--pico-muted-color);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.filter-toggle input { margin-right: 0.5rem; }
+
+/* 4. Split View: List | Details */
+.browser-workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 50% List | 50% Details */
+    flex-grow: 1;
+    overflow: hidden; /* Contains the scroll bars */
+    height: 100%; /* Ensure it fills the flex space */
+}
+
+/* Item List (Left) */
+.browser-list {
+    overflow-y: auto;
+    border-right: 1px solid var(--pico-muted-border-color);
+    min-height: 0; /* CRITICAL */
+}
+
+.browser-item-row {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    cursor: pointer;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
+}
+
+.browser-item-row:hover { background-color: var(--kimap-hover, rgba(255,255,255,0.05)); }
+.browser-item-row.selected { background-color: var(--pico-primary-focus); border-left: 4px solid var(--pico-primary); }
+
+/* Details Panel (Right) */
+.browser-details {
+    padding: 1.5rem;
+    overflow-y: auto;
+    background-color: var(--kimap-subtle, rgba(0,0,0,0.1));
+    min-height: 0; /* CRITICAL */
+}
+
+/* FCS Table Styling */
+.fcs-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+.fcs-table th { text-align: left; border-bottom: 1px solid var(--pico-muted-border-color); color: var(--pico-primary); }
+.fcs-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+    font-family: monospace;
+}
+.fcs-key { color: var(--pico-muted-color); width: 40%; }
+.fcs-val { color: var(--pico-color); }

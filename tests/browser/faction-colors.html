@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Faction color picker regression fixture</title>
+    <link rel="stylesheet" href="/dist/bundle.css" />
+    <style>
+      body {
+        overflow: auto;
+      }
+      #fixture-tools {
+        padding: 12px;
+      }
+      #fixture-tools button {
+        width: auto;
+        margin: 4px;
+      }
+      #fixture-route {
+        width: min(320px, 100%);
+        height: min(570px, 72vh);
+        overflow: auto;
+        background: var(--workbench-surface);
+        padding: 8px;
+      }
+      #test-results {
+        display: block;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fixture-tools" class="kimap-ui">
+      <button id="run-checks">Run color checks</button>
+      <button id="fixture-reveal">Reveal Grayflayers</button>
+      <button id="fixture-theme">Switch theme</button>
+      <label>Search <input id="fixture-search" type="search" /></label>
+      <output id="test-results">Ready for native picker or automated checks.</output>
+    </div>
+    <section id="fixture-route" class="kimap-ui" aria-label="Faction Colors route">
+      <h2>Faction Colors</h2>
+      <div id="fixture-list" class="faction-colors-list"></div>
+    </section>
+    <script type="module" src="./faction-colors-fixture.js"></script>
+  </body>
+</html>

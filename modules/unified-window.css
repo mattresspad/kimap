@@ -1,0 +1,392 @@
+/* kimap/modules/unified-window.css */
+
+#unified-backdrop {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background: var(--kimap-backdrop, rgb(0 0 0 / 85%));
+  opacity: 0;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  transition: opacity 0.2s ease-in-out;
+}
+
+#unified-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#unified-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 95%;
+  max-width: 1600px;
+  height: min(85vh, calc(100dvh - 16px));
+  min-height: 0;
+  overflow: hidden;
+  color: var(--kimap-text, var(--pico-color));
+  background: var(--kimap-surface, var(--pico-card-background-color));
+  border: 1px solid var(--kimap-border-strong, var(--pico-muted-border-color));
+  border-radius: var(--pico-border-radius);
+  box-shadow: var(--kimap-shadow, 0 10px 30px rgb(0 0 0 / 50%));
+}
+
+body:has(#viewport-workbench[data-phone="true"]) #unified-backdrop {
+  align-items: stretch;
+  height: 100dvh;
+}
+
+body:has(#viewport-workbench[data-phone="true"]) #unified-shell {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  border: 0;
+  border-radius: 0;
+  transform: translateY(100%);
+  transition: transform 180ms ease;
+}
+
+body:has(#viewport-workbench[data-phone="true"]) #unified-backdrop.visible #unified-shell {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:has(#viewport-workbench[data-phone="true"]) #unified-shell {
+    transition: none;
+  }
+}
+
+#unified-header {
+  display: grid;
+  grid-template-rows: 48px 44px;
+  flex: 0 0 auto;
+  min-width: 0;
+  color: var(--kimap-text, var(--pico-color));
+  background: var(--kimap-surface-muted, var(--pico-background-color));
+  border-bottom: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+}
+
+.theater-parent-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-width: 0;
+  border-bottom: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+}
+
+#unified-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+  margin: 0;
+  padding: 3px 4px;
+  gap: 3px;
+}
+
+#unified-header :where(button) {
+  margin: 0;
+  box-shadow: none;
+}
+
+.theater-group-btn {
+  position: relative;
+  appearance: none;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 3px 8px;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-family: var(--kimap-font-display, inherit);
+  line-height: 1.08;
+  cursor: pointer;
+}
+
+.theater-group-label,
+.theater-group-current {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theater-group-label {
+  font-size: 0.72rem;
+  font-weight: 720;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.theater-group-current {
+  margin-top: 2px;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  font-family: var(--kimap-font-ui, system-ui, sans-serif);
+  font-size: 0.56rem;
+  font-weight: 550;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.theater-group-current[hidden] {
+  display: none;
+}
+
+.theater-group-btn:is(:hover, :focus-visible),
+.theater-group-btn[aria-pressed="true"] {
+  color: var(--kimap-text-strong, var(--pico-contrast));
+  background: var(--kimap-hover, rgb(255 255 255 / 5%));
+  border-color: var(--kimap-border, var(--pico-muted-border-color));
+}
+
+.theater-group-btn[aria-pressed="true"] {
+  color: var(--kimap-accent-strong, var(--pico-primary));
+  background: var(--kimap-accent-soft, rgb(255 255 255 / 3%));
+}
+
+.theater-group-btn.has-active-pane::after {
+  position: absolute;
+  right: 8px;
+  bottom: 2px;
+  left: 8px;
+  height: 2px;
+  background: var(--kimap-accent, var(--pico-primary));
+  border-radius: 999px;
+  content: "";
+}
+
+#unified-header .header-controls {
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-inline: 2px 5px;
+  background: var(--kimap-surface-muted, var(--pico-background-color));
+}
+
+.theater-utility-btn,
+#unified-header .close-button,
+.tab-scroll-btn {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.theater-utility-btn svg,
+.tab-scroll-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#unified-header .close-button {
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.theater-utility-btn:is(:hover, :focus-visible),
+.theater-utility-btn.active,
+#unified-header .close-button:is(:hover, :focus-visible),
+.tab-scroll-btn:is(:hover, :focus-visible) {
+  color: var(--kimap-text-strong, var(--pico-contrast));
+  background: var(--kimap-hover, rgb(255 255 255 / 5%));
+  border-color: var(--kimap-border, var(--pico-muted-border-color));
+}
+
+.theater-utility-btn.active {
+  color: var(--kimap-accent-strong, var(--pico-primary));
+  border-color: var(--kimap-accent, var(--pico-primary));
+}
+
+.theater-utility-btn:disabled,
+.theater-destination-btn:disabled {
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.tab-carousel-container {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  min-height: 44px;
+  overflow: hidden;
+}
+
+#unified-tabs {
+  display: grid;
+  grid-auto-columns: minmax(180px, 1fr);
+  grid-auto-flow: column;
+  flex: 1 1 auto;
+  align-items: stretch;
+  min-width: 0;
+  margin: 0;
+  padding: 0 8px;
+  gap: 3px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, transparent 0%, black 12px, black 98%, transparent 100%);
+}
+
+#unified-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.theater-destination-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 5px 14px;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.theater-destination-btn[hidden] {
+  display: none;
+}
+
+.theater-destination-btn:is(:hover, :focus-visible):not(:disabled) {
+  color: var(--kimap-text-strong, var(--pico-contrast));
+  background: var(--kimap-hover, rgb(255 255 255 / 5%));
+}
+
+.theater-destination-btn.active {
+  color: var(--kimap-accent-strong, var(--pico-primary));
+  background: var(--kimap-accent-soft, rgb(255 255 255 / 3%));
+  border-bottom-color: var(--kimap-accent, var(--pico-primary));
+}
+
+.tab-scroll-btn {
+  z-index: 2;
+  flex-basis: 32px;
+  width: 32px;
+  min-width: 32px;
+  border-radius: 0;
+  transition: color 0.2s ease-out;
+}
+
+.tab-scroll-btn:focus:not(:focus-visible) {
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.tab-scroll-btn.hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#unified-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  color: var(--kimap-text, var(--pico-color));
+  background: var(--kimap-canvas, #111);
+}
+
+#pane-warehouse {
+  display: none !important;
+}
+
+.window-pane {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  animation: unified-pane-in 0.2s ease-out;
+}
+
+.unified-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+#unified-shell :where(button, [tabindex]):focus-visible {
+  outline: 2px solid var(--kimap-focus, var(--pico-primary));
+  outline-offset: -2px;
+}
+
+@keyframes unified-pane-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #unified-backdrop,
+  #unified-shell *,
+  #unified-shell *::before,
+  #unified-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  #unified-shell,
+  .theater-group-btn,
+  .theater-utility-btn,
+  #unified-header .close-button {
+    border-color: CanvasText;
+  }
+
+  .theater-group-btn.has-active-pane::after {
+    background: Highlight;
+  }
+}

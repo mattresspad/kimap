@@ -1,0 +1,402 @@
+/* Shared presentation for Scenario, Marker, and Paint document controls. */
+
+.document-manager-pane {
+  container: document-manager-pane / inline-size;
+}
+
+.document-form-surface {
+  --document-control-height: 3rem;
+
+  container: document-form-surface / inline-size;
+}
+
+.document-manager {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.document-manager__collection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.document-manager__list {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.document-manager__item-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.5rem;
+}
+
+.document-manager__io {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.document-manager__activity {
+  display: grid;
+  grid-template-columns: 14rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  height: 5.5rem;
+}
+
+.document-manager__clear {
+  align-self: center;
+  width: 100%;
+  min-width: 0;
+  height: 3rem;
+  min-height: 3rem;
+  margin: 0;
+  padding-inline: 1rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.document-manager__logger {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 5.5rem;
+  overflow: hidden;
+  color: var(--kimap-text);
+  background: var(--kimap-input);
+  border: 1px solid var(--kimap-border);
+  border-radius: var(--pico-border-radius);
+}
+
+.document-manager__logger > header {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  color: var(--kimap-text-muted);
+  background: var(--kimap-surface-raised);
+  border-bottom: 1px solid var(--kimap-border);
+  font-size: 0.8em;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.document-manager__logger-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: var(--kimap-text);
+  font-family: monospace;
+  font-size: 0.85em;
+}
+
+.document-manager__documents {
+  display: grid;
+  grid-template-rows: var(--document-control-height) minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--kimap-surface);
+  border: 1px solid var(--kimap-border);
+  border-radius: var(--pico-border-radius);
+}
+
+.document-manager__tablist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-width: 0;
+  min-height: var(--document-control-height);
+  border-bottom: 1px solid var(--kimap-border);
+}
+
+.document-manager__tab {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--document-control-height);
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  overflow: hidden;
+  color: var(--kimap-text-muted);
+  background: var(--kimap-surface-raised);
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.document-manager__tab + .document-manager__tab {
+  border-left: 1px solid var(--kimap-border);
+}
+
+.document-manager__tab:is(:hover, :focus-visible) {
+  color: var(--kimap-text-strong);
+  background: var(--kimap-hover);
+}
+
+.document-manager__tab[aria-selected="true"] {
+  color: var(--kimap-accent-strong);
+  background: var(--kimap-accent-soft);
+  border-bottom-color: var(--kimap-accent);
+}
+
+.document-manager__panel-deck {
+  min-width: 0;
+  min-height: 0;
+  padding: 0 0.25rem 0.75rem 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.document-manager__panel {
+  min-width: 0;
+  margin: 0;
+  padding: 0.75rem;
+}
+
+.document-manager__panel[hidden] {
+  display: none;
+}
+
+.document-manager__panel > p {
+  margin: 0 0 0.75rem;
+  text-align: center;
+}
+
+.document-manager__notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  font-size: 1rem;
+  font-style: normal;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.document-form-row {
+  display: grid;
+  align-items: stretch;
+  gap: 0.5rem;
+  min-width: 0;
+  margin: 1rem 0 0;
+}
+
+.document-manager__panel > .document-form-row:first-of-type {
+  margin-top: 0;
+}
+
+.document-form-row--manager-save {
+  grid-template-columns: minmax(0, 1fr) 7rem 7rem;
+}
+
+.document-form-row--manager-file {
+  grid-template-columns: repeat(2, 10rem);
+  justify-content: start;
+}
+
+.document-form-row--manager-load {
+  grid-template-columns: minmax(0, 1fr) 9rem;
+}
+
+.document-form-row--scenario-save {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.document-form-row--scenario-load {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.document-form-row > :is(input:not([type="file"]), select, button, .document-form-file-action) {
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  height: var(--document-control-height);
+  min-height: var(--document-control-height);
+  margin: 0;
+  padding-block: 0.5rem;
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+
+.document-form-row > :is(button, .document-form-file-action) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.document-form-file-action {
+  display: inline-flex;
+}
+
+.kimap-document-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.kimap-document-icon {
+  display: inline-block;
+  flex: 0 0 1.2rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  pointer-events: none;
+}
+
+.kimap-document-icon--export-cloud,
+.kimap-document-icon--import-cloud,
+.kimap-document-icon--save-folder,
+.kimap-document-icon--load-folder,
+.kimap-document-icon--clear-data,
+.kimap-document-icon--save-simple,
+.kimap-document-icon--save-as,
+.kimap-document-icon--download,
+.kimap-document-icon--marker-rename,
+.kimap-document-icon--marker-edit,
+.kimap-document-icon--marker-delete,
+.kimap-document-icon--paint-undo,
+.kimap-document-icon--paint-delete {
+  background: currentcolor;
+  mask: var(--kimap-document-icon-mask) center / contain no-repeat;
+  -webkit-mask: var(--kimap-document-icon-mask) center / contain no-repeat;
+}
+
+.kimap-document-icon--export-cloud {
+  --kimap-document-icon-mask: url("kim-asset:/icons/export-cloud-icon.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--import-cloud {
+  --kimap-document-icon-mask: url("kim-asset:/icons/import-cloud-icon.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--save-folder {
+  --kimap-document-icon-mask: url("kim-asset:/icons/save-folder-icon.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--load-folder {
+  --kimap-document-icon-mask: url("kim-asset:/icons/load-folder-icon.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--clear-data {
+  --kimap-document-icon-mask: url("kim-asset:/icons/clear-data-icon.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--save-simple {
+  --kimap-document-icon-mask: url("kim-asset:/icons/caravan-save-simple.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--save-as {
+  --kimap-document-icon-mask: url("kim-asset:/icons/caravan-save-as.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--download {
+  --kimap-document-icon-mask: url("kim-asset:/icons/caravan-download.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--marker-rename {
+  --kimap-document-icon-mask: url("kim-asset:/icons/marker-window-rename.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--marker-edit {
+  --kimap-document-icon-mask: url("kim-asset:/icons/marker-window-edit.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--marker-delete {
+  --kimap-document-icon-mask: url("kim-asset:/icons/marker-window-delete.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--paint-undo {
+  --kimap-document-icon-mask: url("kim-asset:/icons/paint-window-undo.svg?v=2026-07-13-1");
+}
+
+.kimap-document-icon--paint-delete {
+  --kimap-document-icon-mask: url("kim-asset:/icons/paint-window-delete.svg?v=2026-07-13-1");
+}
+
+@container document-form-surface (max-width: 40rem) {
+  .document-form-row--manager-save,
+  .document-form-row--scenario-save {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .document-form-row--manager-save > input,
+  .document-form-row--scenario-save > input {
+    grid-column: 1 / -1;
+  }
+
+  .document-form-row--manager-file {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .document-form-row--manager-load,
+  .document-form-row--scenario-load {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container document-manager-pane (max-width: 64rem) {
+  .document-manager {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+  }
+
+  .document-manager__collection {
+    height: clamp(20rem, 55dvh, 32rem);
+  }
+
+  .document-manager__io {
+    grid-template-rows: auto auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .document-manager__documents {
+    grid-template-rows: auto auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .document-manager__panel-deck {
+    min-height: auto;
+    padding-right: 0;
+    overflow: visible;
+    scrollbar-gutter: auto;
+  }
+}

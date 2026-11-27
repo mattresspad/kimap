@@ -1,0 +1,178 @@
+/* --- User Preferences Pane --- */
+
+#pane-user-prefs {
+  container: user-prefs-pane / inline-size;
+}
+
+#prefs-content {
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0.75rem;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  background-color: var(--pico-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  display: grid;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.prefs-section {
+  min-width: 0;
+  box-sizing: border-box;
+  background-color: var(--pico-card-background-color);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 4px;
+}
+
+.prefs-section h4 {
+  margin: 0 0 0.75rem;
+  color: var(--pico-primary);
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding-bottom: 0.5rem;
+}
+
+.prefs-section p {
+  margin: 0 0 0.75rem;
+  color: var(--pico-color);
+}
+
+.prefs-session-strip {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.55fr) minmax(0, 1.45fr);
+  align-items: center;
+  min-width: 0;
+  min-height: 3.5rem;
+  padding: 0.65rem 1rem;
+  gap: 0.75rem;
+  box-sizing: border-box;
+  color: var(--pico-color);
+  background-color: var(--pico-card-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: 4px;
+}
+
+.prefs-session-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  margin: 0;
+  gap: 0.5rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.prefs-session-document {
+  padding-left: 0.75rem;
+  border-left: 1px solid var(--pico-muted-border-color);
+}
+
+.prefs-session-label {
+  flex: 0 0 auto;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+#prefs-loaded-save {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.prefs-session-status-dot {
+  flex: 0 0 0.65rem;
+  width: 0.65rem;
+  height: 0.65rem;
+  background: var(--kimap-text-muted, var(--pico-muted-color));
+  border: 1px solid currentcolor;
+  border-radius: 50%;
+}
+
+[data-scenario-document-state="saved"] .prefs-session-status-dot {
+  color: var(--kimap-success, #2ecc71);
+  background: currentcolor;
+}
+
+[data-scenario-document-state="unsaved"] .prefs-session-status-dot,
+[data-scenario-document-state="modified"] .prefs-session-status-dot {
+  color: var(--kimap-warning, #f1c40f);
+  background: currentcolor;
+}
+
+.prefs-document-section > p {
+  text-align: center;
+}
+
+.prefs-account-section {
+  min-width: 0;
+  min-height: 0;
+}
+
+.prefs-account-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.prefs-account-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 4rem;
+  padding: 0.75rem 1rem;
+  gap: 0.75rem;
+  color: var(--kimap-text-strong);
+  background: var(--kimap-surface-raised);
+  border: 1px solid var(--kimap-border-strong);
+  border-radius: var(--pico-border-radius);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+}
+
+.prefs-account-link:is(:hover, :focus-visible) {
+  color: var(--kimap-accent-strong);
+  background: var(--kimap-accent-soft);
+  border-color: var(--kimap-accent);
+}
+
+.prefs-account-link .kimap-account-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+@container user-prefs-pane (max-width: 40rem) {
+  .prefs-session-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .prefs-session-document {
+    padding-top: 0.5rem;
+    padding-left: 0;
+    border-top: 1px solid var(--pico-muted-border-color);
+    border-left: 0;
+  }
+
+  .prefs-account-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .prefs-account-link {
+    min-height: 3.5rem;
+  }
+}

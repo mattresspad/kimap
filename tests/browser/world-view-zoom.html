@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>World View zoom regression</title>
+    <style>
+      body {
+        margin: 8px;
+        font-family: system-ui, sans-serif;
+      }
+      iframe {
+        width: 100%;
+        height: 720px;
+        border: 1px solid #777;
+      }
+      output {
+        display: block;
+        white-space: pre-wrap;
+        margin: 8px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="run-checks" type="button">Run World View zoom checks</button>
+    <output id="test-results">Uses the real local application and read-only vanilla data.</output>
+    <iframe id="map" src="/" title="Local KiMap under test"></iframe>
+    <script type="module" src="./world-view-zoom-fixture.js"></script>
+  </body>
+</html>

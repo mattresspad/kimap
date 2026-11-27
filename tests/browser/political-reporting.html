@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Political reporting browser fixture</title>
+    <link rel="stylesheet" href="/dist/bundle.css" />
+    <style>
+      body {
+        overflow: auto;
+      }
+      #fixture-controls {
+        position: relative;
+        padding: 10px;
+        background: var(--workbench-surface);
+        z-index: 5000;
+      }
+      #fixture-controls button {
+        margin: 3px;
+        padding: 6px;
+      }
+      #viewport-workbench {
+        display: block;
+        height: 75vh;
+        min-height: 340px;
+      }
+      #map-workspace {
+        position: relative;
+        height: 100%;
+        width: 100%;
+        background: #687d76;
+      }
+      #map-container {
+        position: absolute;
+        inset: 0;
+      }
+      #fixture-probe {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        width: min(286px, calc(100% - 24px));
+        padding: 10px;
+        background: var(--workbench-surface);
+      }
+      #fixture-controls label {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+      }
+      #fixture-controls select {
+        width: 100px;
+      }
+      #test-results {
+        white-space: pre-wrap;
+      }
+      #unified-dock[hidden] {
+        display: none !important;
+      }
+      #fixture-sheet-body {
+        overflow: auto;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fixture-controls" class="kimap-ui">
+      <button id="run-checks">Run reporting checks</button>
+      <button id="fixture-activate">Toggle Political View</button>
+      <button id="fixture-scenario">Change scenario</button>
+      <button id="fixture-fail">Toggle reporting failure</button>
+      <button id="fixture-hover">Show hover fixture</button>
+      <button id="fixture-theme">Switch theme</button>
+      <button id="fixture-sheet">Toggle bottom sheet</button>
+      <label
+        >Preview Full report
+        <select id="fixture-subject">
+          <option value="political">Political</option>
+          <option value="resources">Resources</option>
+          <option value="weather">Weather</option>
+        </select>
+      </label>
+      <span id="tooltip-anchor"></span>
+      <output id="test-results"
+        >Ready: synthetic long-name manifest with 24 included contributors.</output
+      >
+    </div>
+    <div id="viewport-workbench" data-layout-class="standard">
+      <aside id="unified-dock" class="kimap-ui" hidden>
+        <div id="dock-header">
+          Fixture sheet
+          <button
+            id="fixture-sheet-close"
+            class="workbench-title-control"
+            aria-label="Minimize fixture sheet"
+          >
+            −
+          </button>
+        </div>
+        <div id="fixture-sheet-body">
+          The complete Scanner takes priority over this sheet's content.
+        </div>
+      </aside>
+      <section id="map-workspace">
+        <main id="map-container"></main>
+        <div id="fixture-probe" class="kimap-ui">
+          <h4>Exact point fixture</h4>
+          <div>X = 123 · Z = 456</div>
+          <div id="probe-slot"></div>
+          <button>Open Context</button><button>Copy View</button><button>Zoom Closer</button>
+        </div>
+        <div id="workbench-hud-region">
+          <div id="workbench-scanner-slot"><section id="world-tracker"></section></div>
+        </div>
+        <div id="map-control-cluster" class="kimap-ui">
+          <button>Map Tasks</button><button>Focus Map</button><button>Restore Workspace</button>
+        </div>
+      </section>
+    </div>
+    <div id="unified-backdrop" class="hidden">
+      <div id="unified-shell">
+        <div id="unified-groups"></div>
+        <div id="unified-tabs"></div>
+        <span id="unified-current-title"></span>
+        <button id="unified-close-btn">Close window</button>
+        <div id="unified-stage"></div>
+      </div>
+    </div>
+    <div id="pane-warehouse" hidden>
+      <section id="fixture-environment"><button>Environment fixture</button></section>
+      <section id="fixture-ranks"><button>Ranks fixture</button></section>
+    </div>
+    <script type="module" src="./political-reporting-fixture.js"></script>
+  </body>
+</html>

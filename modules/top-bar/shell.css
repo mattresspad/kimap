@@ -1,0 +1,1047 @@
+/* =========================================================
+   KIMAP APPLICATION SHELL V1
+   Header presentation only. Domain and viewport state remain
+   owned by their existing sessions.
+   ========================================================= */
+
+#top-bar.kimap-shell,
+#top-bar.kimap-shell *,
+#top-bar.kimap-shell *::before,
+#top-bar.kimap-shell *::after {
+  box-sizing: border-box;
+}
+
+#top-bar.kimap-shell {
+  position: relative;
+  isolation: isolate;
+  z-index: 2000;
+  flex: 0 0 56px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(20rem, 32vw, 34rem) minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: 56px;
+  min-height: 56px;
+  max-height: 56px;
+  margin: 0;
+  padding: 0 10px;
+  gap: 10px;
+  color: var(--kimap-text);
+  background: var(--kimap-surface);
+  border: 0;
+  border-bottom: 1px solid var(--kimap-border);
+  box-shadow: 0 3px 12px rgb(0 0 0 / 18%);
+  font:
+    400 14px/1.3 "Segoe UI",
+    Tahoma,
+    Geneva,
+    Verdana,
+    sans-serif;
+  text-align: left;
+}
+
+.kimap-shell__left,
+.kimap-shell__center,
+.kimap-shell__right,
+.kimap-shell__navigation,
+.kimap-ecosystem-wide {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.kimap-shell__left,
+.kimap-shell__navigation,
+.kimap-ecosystem-wide {
+  gap: 4px;
+}
+
+.kimap-shell__left {
+  justify-self: stretch;
+  overflow: visible;
+}
+
+.kimap-shell__center {
+  justify-self: center;
+  width: 100%;
+}
+
+.kimap-shell__right {
+  justify-self: stretch;
+  justify-content: flex-end;
+  gap: 4px;
+  overflow: visible;
+}
+
+.kimap-shell :where(button, input, a) {
+  margin: 0;
+  font: inherit;
+}
+
+.kimap-shell nav {
+  width: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.kimap-shell :where(ul, ol) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kimap-shell .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kimap-shell :where(svg, img) {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  max-width: none;
+  pointer-events: none;
+}
+
+.kimap-shell svg {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.kimap-ecosystem-icon {
+  display: block;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  background: currentcolor;
+  mask-image: var(--kimap-ecosystem-mask);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+}
+
+.kimap-ecosystem-icon--wiki {
+  --kimap-ecosystem-mask: url("kim-asset:/icons/ecosystem/wiki-icon.svg?v=2026-07-13-1");
+}
+
+.kimap-ecosystem-icon--forums {
+  --kimap-ecosystem-mask: url("kim-asset:/icons/ecosystem/chat-icon.svg?v=2026-07-13-1");
+}
+
+.kimap-ecosystem-icon--database {
+  --kimap-ecosystem-mask: url("kim-asset:/icons/ecosystem/database-icon.svg?v=2026-07-13-1");
+}
+
+.kimap-ecosystem-web-fcs-icon {
+  transform: scale(1.2);
+  transform-origin: center;
+}
+
+.kimap-account-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  background: currentcolor;
+  mask: var(--kimap-account-icon-mask) center / contain no-repeat;
+  -webkit-mask: var(--kimap-account-icon-mask) center / contain no-repeat;
+  pointer-events: none;
+}
+
+.kimap-account-icon--preferences {
+  --kimap-account-icon-mask: url("kim-asset:/icons/account-prefs.svg?v=2026-07-13-1");
+}
+
+.kimap-account-icon--memory-card {
+  --kimap-account-icon-mask: url("kim-asset:/icons/account-memcard.svg?v=2026-07-13-1");
+}
+
+.kimap-account-icon--creations {
+  --kimap-account-icon-mask: url("kim-asset:/icons/account-creations.svg?v=2026-07-13-1");
+}
+
+.kimap-wordmark,
+.kimap-nav-trigger,
+.kimap-shell-button,
+.kimap-quick-search__launcher,
+.kimap-ecosystem-wide a {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 6px 9px;
+  gap: 7px;
+  color: var(--kimap-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  box-shadow: none;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.kimap-wordmark {
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  padding-inline: 4px 6px;
+  gap: 4px;
+  color: var(--kimap-accent-strong);
+  font-family: var(--kimap-font-display);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.kimap-wordmark :where(svg, img) {
+  width: 24px;
+  height: 24px;
+}
+
+.kimap-wordmark__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.kimap-nav-trigger {
+  font-family: var(--kimap-font-display);
+  font-size: 0.62rem;
+  font-weight: 680;
+  letter-spacing: 0.025em;
+}
+
+.kimap-nav-trigger > svg {
+  width: 13px;
+  height: 13px;
+}
+
+.kimap-shell-button,
+.kimap-quick-search__launcher,
+.kimap-ecosystem-wide a {
+  padding-inline: 9px;
+}
+
+.kimap-shell
+  :where(
+    .kimap-wordmark,
+    .kimap-nav-trigger,
+    .kimap-shell-button,
+    .kimap-quick-search__launcher,
+    .kimap-ecosystem-wide a
+  ):is(:hover, :focus-visible),
+.kimap-shell
+  :where(
+    .kimap-nav-trigger,
+    .kimap-shell-button,
+    .kimap-quick-search__launcher
+  )[aria-expanded="true"] {
+  color: var(--kimap-text-strong);
+  background: var(--kimap-hover);
+  border-color: var(--kimap-border);
+}
+
+.kimap-shell :where(button, a):active {
+  background: var(--kimap-accent-soft);
+}
+
+.kimap-shell :where(button, a):focus-visible,
+#top-bar.kimap-shell input.kimap-quick-search__input:focus-visible,
+.kimap-quick-search__filter-option input:focus-visible {
+  outline: 2px solid var(--kimap-focus);
+  outline-offset: 1px;
+}
+
+.kimap-shell button:disabled,
+.kimap-shell [aria-disabled="true"] {
+  color: var(--kimap-text-muted);
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+.kimap-shell-button img,
+.kimap-nav-trigger img,
+.kimap-ecosystem-wide img {
+  filter: var(--kimap-icon-filter);
+}
+
+.kimap-disclosure {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.kimap-shell-disclosure,
+.kimap-quick-search__panel,
+.kimap-quick-search__surface {
+  color: var(--kimap-text);
+  background: var(--kimap-overlay);
+  border: 1px solid var(--kimap-border-strong);
+  border-radius: 6px;
+  box-shadow: var(--kimap-shadow);
+  backdrop-filter: blur(9px);
+}
+
+.kimap-shell-disclosure {
+  position: absolute;
+  z-index: 12;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(22rem, calc(100vw - 16px));
+  max-height: min(70vh, calc(100dvh - 72px));
+  padding: 7px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--kimap-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.kimap-shell__right .kimap-shell-disclosure {
+  right: 0;
+  left: auto;
+}
+
+.kimap-shell__navigation .kimap-shell-disclosure {
+  width: max-content;
+  min-width: max(100%, 12rem);
+  max-width: min(22rem, calc(100vw - 16px));
+}
+
+#top-bar[data-layout-class="wide"] #topbar-account-panel {
+  width: max-content;
+  min-width: max(100%, 12rem);
+  max-width: min(18rem, calc(100vw - 16px));
+}
+
+#top-bar[data-layout-class="wide"] #topbar-account-panel a {
+  white-space: nowrap;
+}
+
+.kimap-shell__navigation .kimap-destination-button > span {
+  overflow-wrap: normal;
+  white-space: nowrap;
+}
+
+.kimap-shell__navigation .kimap-destination-button:disabled::after {
+  contain: inline-size;
+}
+
+.kimap-shell
+  :where(
+    .kimap-shell-disclosure,
+    .kimap-quick-search__panel,
+    .kimap-quick-search__surface
+  )[hidden] {
+  display: none !important;
+}
+
+.kimap-shell-disclosure :where(h2, h3, p) {
+  margin: 0;
+}
+
+.kimap-shell-disclosure :where(h2, h3) {
+  padding: 7px 9px;
+  color: var(--kimap-accent);
+  font-family: var(--kimap-font-display);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.kimap-shell-disclosure section + section {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--kimap-border);
+}
+
+.kimap-destination-list {
+  display: grid;
+  gap: 2px;
+}
+
+.kimap-destination-list--inline {
+  display: flex;
+  align-items: center;
+}
+
+.kimap-destination-list--inline .kimap-destination-button {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  width: 40px;
+  padding: 0;
+}
+
+.kimap-destination-list--inline .kimap-destination-button > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.kimap-destination-button,
+.kimap-shell-disclosure a {
+  appearance: none;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  padding: 7px 9px;
+  gap: 8px;
+  color: var(--kimap-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  font-size: 0.79rem;
+  line-height: 1.3;
+  text-align: left;
+  text-decoration: none;
+}
+
+.kimap-destination-button:not(:has(svg, img, .kimap-ecosystem-icon, .kimap-account-icon)),
+.kimap-shell-disclosure a:not(:has(svg, img, .kimap-ecosystem-icon, .kimap-account-icon)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.kimap-destination-button > span,
+.kimap-shell-disclosure a > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.kimap-destination-button:is(:hover, :focus-visible):not(:disabled),
+.kimap-shell-disclosure a:is(:hover, :focus-visible) {
+  color: var(--kimap-text-strong);
+  background: var(--kimap-hover);
+  border-color: var(--kimap-border);
+}
+
+.kimap-destination-button[aria-current="page"] {
+  color: var(--kimap-accent-strong);
+  background: var(--kimap-accent-soft);
+  border-color: var(--kimap-accent);
+}
+
+.kimap-destination-reason {
+  grid-column: 2;
+  color: var(--kimap-text-muted);
+  font-size: 0.67rem;
+}
+
+.kimap-destination-button:disabled::after {
+  content: attr(data-unavailable-reason);
+  grid-column: 2;
+  min-width: 0;
+  color: var(--kimap-text-muted);
+  font-size: 0.65rem;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+.kimap-destination-button:not(
+    :has(svg, img, .kimap-ecosystem-icon, .kimap-account-icon)
+  ):disabled::after {
+  grid-column: 1;
+}
+
+.kimap-shell-disclosure hr {
+  height: 1px;
+  margin: 5px 7px;
+  background: var(--kimap-border);
+  border: 0;
+}
+
+.kimap-quick-search {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.kimap-quick-search__surface {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.kimap-quick-search__input-row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 6px;
+}
+
+.kimap-quick-search__filter-trigger {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0;
+  color: var(--kimap-text-muted);
+  background: var(--kimap-input);
+  border: 1px solid var(--kimap-border-strong);
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+.kimap-quick-search__filter-trigger:is(:hover, :focus-visible),
+.kimap-quick-search__filter-trigger[aria-expanded="true"],
+.kimap-quick-search__filter-trigger[data-filtered="true"] {
+  color: var(--kimap-accent-strong);
+  background: var(--kimap-accent-soft);
+  border-color: var(--kimap-accent);
+}
+
+.kimap-quick-search__filter-icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: currentcolor;
+  mask: url("kim-asset:/icons/search-filter.svg?v=2026-07-13-1") center /
+    contain no-repeat;
+  -webkit-mask: url("kim-asset:/icons/search-filter.svg?v=2026-07-13-1")
+    center / contain no-repeat;
+  pointer-events: none;
+}
+
+.kimap-quick-search__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.kimap-quick-search__input-wrap > svg {
+  position: absolute;
+  z-index: 1;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--kimap-text-muted);
+}
+
+#top-bar.kimap-shell input.kimap-quick-search__input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 7px 42px 7px 38px;
+  color: var(--kimap-text);
+  background: var(--kimap-input);
+  background-image: none;
+  border: 1px solid var(--kimap-border-strong);
+  border-radius: 999px;
+  box-shadow: none;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+#top-bar.kimap-shell input.kimap-quick-search__input::placeholder {
+  color: var(--kimap-text-muted);
+  opacity: 1;
+}
+
+#top-bar.kimap-shell input.kimap-quick-search__input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.kimap-quick-search[data-state="loading"] .kimap-quick-search__launcher,
+.kimap-quick-search[data-state="unavailable"] .kimap-quick-search__launcher {
+  color: var(--kimap-text-muted);
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+#top-bar.kimap-shell input.kimap-quick-search__input:focus {
+  border-color: var(--kimap-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kimap-focus) 20%, transparent);
+}
+
+.kimap-quick-search__clear {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  min-height: 40px;
+  margin: 0;
+  padding: 0;
+  color: var(--kimap-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  box-shadow: none;
+}
+
+.kimap-quick-search__clear:is(:hover, :focus-visible) {
+  color: var(--kimap-text);
+  background: var(--kimap-hover);
+  border-color: var(--kimap-border);
+}
+
+.kimap-quick-search__panel {
+  position: absolute;
+  z-index: 14;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  max-height: min(62vh, calc(100dvh - 72px));
+  padding: 6px;
+  overflow: hidden;
+}
+
+.kimap-quick-search__filter-panel[hidden],
+.kimap-quick-search__panel > [data-search-results-view][hidden] {
+  display: none;
+}
+
+.kimap-quick-search__filter-panel {
+  max-height: min(54vh, calc(100dvh - 124px));
+  padding: 7px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--kimap-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.kimap-quick-search__filter-panel fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.kimap-quick-search__filter-panel legend {
+  margin: 0;
+  padding: 5px 5px 9px;
+  color: var(--kimap-accent);
+  font-family: var(--kimap-font-display);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.kimap-quick-search__filter-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.kimap-quick-search__filter-option {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  padding: 7px 9px;
+  gap: 8px;
+  color: var(--kimap-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 0.77rem;
+  line-height: 1.3;
+  cursor: pointer;
+}
+
+.kimap-quick-search__filter-option:is(:hover, :focus-within) {
+  color: var(--kimap-text-strong);
+  background: var(--kimap-hover);
+  border-color: var(--kimap-border);
+}
+
+.kimap-quick-search__filter-option input {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--kimap-accent);
+}
+
+.kimap-quick-search__filter-option span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.kimap-quick-search__status {
+  margin: 0;
+  padding: 10px 11px;
+  color: var(--kimap-text-muted);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.kimap-quick-search__results {
+  max-height: min(54vh, calc(100dvh - 124px));
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--kimap-border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.kimap-quick-search__option {
+  appearance: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  width: 100%;
+  min-height: 52px;
+  margin: 0;
+  padding: 7px 10px;
+  gap: 4px;
+  color: var(--kimap-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  font-size: 0.79rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.kimap-quick-search__option > :first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kimap-quick-search__option:is(:hover, [aria-selected="true"]) {
+  color: var(--kimap-text-strong);
+  background: var(--kimap-accent-soft);
+  border-color: color-mix(in srgb, var(--kimap-accent) 62%, var(--kimap-border));
+}
+
+.kimap-quick-search__meta,
+.kimap-quick-search__kind,
+.kimap-quick-search__id {
+  color: var(--kimap-text-muted);
+  font-size: 0.66rem;
+}
+
+.kimap-quick-search__meta {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+  gap: 5px;
+  line-height: 1.35;
+}
+
+.kimap-quick-search__kind {
+  padding: 2px 6px;
+  border: 1px solid var(--kimap-border);
+  border-radius: 999px;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.kimap-quick-search__separator {
+  flex: 0 0 auto;
+  color: var(--kimap-text-muted);
+}
+
+.kimap-quick-search__id {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.kimap-ecosystem-wide a {
+  padding: 0;
+}
+
+.kimap-account-label {
+  max-width: 9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+#top-bar[data-layout-class="wide"] .kimap-account-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+
+.kimap-compact-only,
+.kimap-quick-search__launcher {
+  display: none;
+}
+
+#top-bar[data-layout-class="wide"] .kimap-wide-only,
+#top-bar[data-layout-class="wide"] .kimap-standard-up,
+#top-bar[data-layout-class="standard"] .kimap-standard-up {
+  display: flex;
+}
+
+#top-bar[data-layout-class="wide"] .kimap-nav-trigger {
+  padding-inline: 5px;
+  gap: 3px;
+}
+
+#top-bar[data-layout-class="wide"] .kimap-shell__navigation > .kimap-shell-button {
+  padding-inline: 6px;
+  gap: 4px;
+  font-size: 0.7rem;
+}
+
+#top-bar[data-layout-class="wide"] .kimap-account__trigger {
+  justify-content: flex-start;
+  width: 9.5rem;
+}
+
+#top-bar[data-layout-class="standard"] {
+  grid-template-columns: minmax(0, 1fr) clamp(20rem, 32vw, 34rem) minmax(0, 1fr);
+}
+
+#top-bar[data-layout-class="standard"] .kimap-wide-only,
+#top-bar[data-layout-class="standard"] .kimap-ecosystem-wide {
+  display: none !important;
+}
+
+#top-bar[data-layout-class="standard"] .kimap-compact-only {
+  display: inline-flex;
+}
+
+#top-bar[data-layout-class="standard"] .kimap-quick-search__launcher {
+  display: none !important;
+}
+
+#top-bar[data-layout-class="standard"] .kimap-account-label {
+  display: none;
+}
+
+#top-bar[data-layout-class="standard"] .kimap-shell-disclosure,
+#top-bar[data-layout-class="narrow"] .kimap-shell-disclosure {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 8px;
+  left: 8px;
+  width: auto;
+  min-width: 0;
+  max-height: min(70vh, calc(100dvh - 72px));
+  max-width: none;
+}
+
+#top-bar[data-layout-class="standard"] #topbar-sites-panel {
+  right: 8px;
+  left: auto;
+  width: max-content;
+  min-width: 12rem;
+  max-width: min(18rem, calc(100vw - 16px));
+}
+
+#top-bar[data-layout-class="standard"] #topbar-sites-panel a {
+  white-space: nowrap;
+}
+
+#top-bar[data-layout-class="standard"] .kimap-disclosure,
+#top-bar[data-layout-class="narrow"] .kimap-disclosure {
+  position: static;
+}
+
+#top-bar[data-layout-class="standard"] .kimap-shell-disclosure--navigation {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+#top-bar[data-layout-class="standard"] .kimap-shell-disclosure--navigation > h2,
+#top-bar[data-layout-class="standard"]
+  .kimap-shell-disclosure--navigation
+  > .kimap-destination-list {
+  grid-column: 1 / -1;
+}
+
+#top-bar[data-layout-class="standard"] .kimap-shell-disclosure--navigation section + section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+#top-bar[data-layout-class="narrow"] {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding-inline: 4px;
+  gap: 3px;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-wide-only,
+#top-bar[data-layout-class="narrow"] .kimap-standard-up,
+#top-bar[data-layout-class="narrow"] .kimap-ecosystem-wide,
+#top-bar[data-layout-class="narrow"] .kimap-wordmark__text,
+#top-bar[data-layout-class="narrow"] .kimap-account-label {
+  display: none !important;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-nav-trigger__label,
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__launcher > span {
+  display: none;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-compact-only,
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__launcher {
+  display: inline-flex;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-shell__left,
+#top-bar[data-layout-class="narrow"] .kimap-shell__right,
+#top-bar[data-layout-class="narrow"] .kimap-shell__navigation {
+  gap: 2px;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-shell__center {
+  justify-content: center;
+  width: auto;
+}
+
+#top-bar[data-layout-class="narrow"]
+  :where(.kimap-wordmark, .kimap-nav-trigger, .kimap-shell-button, .kimap-quick-search__launcher) {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-wordmark :where(svg, img) {
+  width: 26px;
+  height: 26px;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-quick-search {
+  position: static;
+  width: auto;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__surface {
+  position: absolute;
+  z-index: 13;
+  top: calc(100% + 8px);
+  right: 8px;
+  left: 8px;
+  display: none;
+  width: auto;
+  padding: 8px;
+  background: var(--kimap-overlay);
+  border: 1px solid var(--kimap-border-strong);
+  border-radius: 6px;
+  box-shadow: var(--kimap-shadow);
+  backdrop-filter: blur(9px);
+}
+
+#top-bar[data-layout-class="narrow"]
+  .kimap-quick-search[data-open="true"]
+  .kimap-quick-search__surface {
+  display: block;
+}
+
+#top-bar[data-layout-class="narrow"] input.kimap-quick-search__input {
+  height: 44px;
+  min-height: 44px;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__input-row {
+  grid-template-columns: 44px minmax(0, 1fr);
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__filter-trigger,
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__clear {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+
+#top-bar[data-layout-class="narrow"] :where(.kimap-destination-button, .kimap-shell-disclosure a),
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__option {
+  min-height: 44px;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__panel {
+  position: static;
+  max-height: min(62vh, calc(100dvh - 132px));
+  margin-top: 8px;
+  box-shadow: none;
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__results {
+  max-height: min(54vh, calc(100dvh - 184px));
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__filter-options {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#top-bar[data-layout-class="narrow"] .kimap-quick-search__filter-option {
+  min-height: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #top-bar.kimap-shell *,
+  #top-bar.kimap-shell *::before,
+  #top-bar.kimap-shell *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (forced-colors: active) {
+  #top-bar.kimap-shell,
+  .kimap-shell-disclosure,
+  .kimap-quick-search__panel,
+  .kimap-quick-search__surface {
+    border-color: CanvasText;
+  }
+
+  .kimap-shell :where(button, a, input):focus-visible {
+    outline-color: Highlight;
+  }
+}

@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.cloudflare/
+.wrangler/
+.local/
+artifacts/
+test-results/
+tmp/
+.env
+.env.*
+.dev.vars*
+*.log
+# Production data and artwork belong to their separate publishers.
+/data/
+/icons/
+/deploy/
+/reports/
+*.bundle
+*.zip
+*.pem
+*.key

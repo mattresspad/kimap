@@ -1,0 +1,236 @@
+/* KiMap application theme tokens. Domain visualization colors remain component-owned. */
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --kimap-canvas: #0e1012;
+  --kimap-surface: #181b1f;
+  --kimap-surface-raised: #22262b;
+  --kimap-surface-muted: #131619;
+  --kimap-control: #292e33;
+  --kimap-control-hover: #353b42;
+  --kimap-input: #111418;
+  --kimap-overlay: rgb(18 21 24 / 96%);
+  --kimap-backdrop: rgb(4 6 8 / 78%);
+  --kimap-hover: rgb(255 255 255 / 7%);
+  --kimap-subtle: rgb(255 255 255 / 3%);
+  --kimap-text: #e5e7e9;
+  --kimap-text-muted: #a0a7af;
+  --kimap-text-strong: #ffffff;
+  --kimap-border: #41484f;
+  --kimap-border-strong: #68727d;
+  --kimap-accent: #dfa959;
+  --kimap-accent-strong: #f2bd62;
+  --kimap-accent-contrast: #17130d;
+  --kimap-accent-soft: rgb(223 169 89 / 15%);
+  --kimap-focus: #f0b95d;
+  --kimap-success: #68d576;
+  --kimap-warning: #ffb34f;
+  --kimap-danger: #ff7373;
+  --kimap-danger-surface: #8c3030;
+  --kimap-shadow-sm: 0 5px 14px rgb(0 0 0 / 32%);
+  --kimap-shadow: 0 12px 30px rgb(0 0 0 / 44%);
+  --kimap-icon-filter: invert(1) brightness(1.35);
+  --kimap-icon-filter-muted: invert(0.8);
+  --kimap-icon-filter-on-accent: brightness(0.24);
+  --kimap-font-display: "Exo 2", "Segoe UI", tahoma, geneva, verdana, sans-serif;
+
+  /* Legacy aliases remain while older theaters move to semantic tokens. */
+  --bg-main: var(--kimap-canvas);
+  --bg-panel: var(--kimap-surface-raised);
+  --bg-hover: var(--kimap-control-hover);
+  --text-main: var(--kimap-text);
+  --text-muted: var(--kimap-text-muted);
+  --text-highlight: var(--kimap-text-strong);
+  --border-main: var(--kimap-border-strong);
+  --border-sub: var(--kimap-border);
+  --accent-color: var(--kimap-accent);
+
+  /* Pico remains the baseline for legacy theater content. */
+  --pico-background-color: var(--kimap-canvas);
+  --pico-color: var(--kimap-text);
+  --pico-muted-color: var(--kimap-text-muted);
+  --pico-muted-border-color: var(--kimap-border);
+  --pico-primary: var(--kimap-accent);
+  --pico-primary-background: #8a6129;
+  --pico-primary-border: #bd8842;
+  --pico-primary-underline: rgb(223 169 89 / 55%);
+  --pico-primary-hover: var(--kimap-accent-strong);
+  --pico-primary-hover-background: #a87535;
+  --pico-primary-hover-border: var(--kimap-accent-strong);
+  --pico-primary-focus: rgb(240 185 93 / 28%);
+  --pico-primary-inverse: #111418;
+  --pico-secondary-background: var(--kimap-control);
+  --pico-secondary-border: var(--kimap-border-strong);
+  --pico-secondary-hover-background: var(--kimap-control-hover);
+  --pico-secondary-hover-border: var(--kimap-accent);
+  --pico-contrast: var(--kimap-text-strong);
+  --pico-contrast-background: var(--kimap-control);
+  --pico-contrast-border: var(--kimap-border-strong);
+  --pico-card-background-color: var(--kimap-surface);
+  --pico-card-border-color: var(--kimap-border);
+  --pico-card-box-shadow: var(--kimap-shadow);
+  --pico-form-element-background-color: var(--kimap-input);
+  --pico-form-element-selected-background-color: var(--kimap-accent);
+  --pico-form-element-border-color: var(--kimap-border-strong);
+  --pico-form-element-color: var(--kimap-text);
+  --pico-form-element-placeholder-color: var(--kimap-text-muted);
+  --pico-form-element-active-background-color: var(--kimap-input);
+  --pico-form-element-active-border-color: var(--kimap-focus);
+  --pico-form-element-focus-color: rgb(240 185 93 / 24%);
+  --pico-dropdown-background-color: var(--kimap-surface-raised);
+  --pico-dropdown-border-color: var(--kimap-border);
+  --pico-dropdown-color: var(--kimap-text);
+  --pico-dropdown-hover-background-color: var(--kimap-hover);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --kimap-canvas: #e8e4dc;
+  --kimap-surface: #f7f3eb;
+  --kimap-surface-raised: #fffdf8;
+  --kimap-surface-muted: #eee9df;
+  --kimap-control: #f3eee4;
+  --kimap-control-hover: #e2dbcf;
+  --kimap-input: #fffefb;
+  --kimap-overlay: rgb(255 253 248 / 97%);
+  --kimap-backdrop: rgb(45 38 29 / 55%);
+  --kimap-hover: rgb(36 29 20 / 9%);
+  --kimap-subtle: rgb(36 29 20 / 4%);
+  --kimap-text: #252a30;
+  --kimap-text-muted: #5e656d;
+  --kimap-text-strong: #111519;
+  --kimap-border: #c8bfb2;
+  --kimap-border-strong: #746c61;
+  --kimap-accent: #865408;
+  --kimap-accent-strong: #673f00;
+  --kimap-accent-contrast: #ffffff;
+  --kimap-accent-soft: rgb(134 84 8 / 13%);
+  --kimap-focus: #754900;
+  --kimap-success: #236d39;
+  --kimap-warning: #865105;
+  --kimap-danger: #a72d2d;
+  --kimap-danger-surface: #a53838;
+  --kimap-shadow-sm: 0 5px 14px rgb(56 45 31 / 18%);
+  --kimap-shadow: 0 12px 30px rgb(56 45 31 / 24%);
+  --kimap-icon-filter: none;
+  --kimap-icon-filter-muted: opacity(0.72);
+  --kimap-icon-filter-on-accent: invert(1) brightness(1.8);
+  --pico-primary-background: #865408;
+  --pico-primary-border: #865408;
+  --pico-primary-underline: rgb(134 84 8 / 45%);
+  --pico-primary-hover-background: #673f00;
+  --pico-primary-hover-border: #673f00;
+  --pico-primary-focus: rgb(117 73 0 / 22%);
+  --pico-primary-inverse: #ffffff;
+  --pico-form-element-focus-color: rgb(117 73 0 / 20%);
+}
+
+/* Match Pico's theme-selector specificity so every legacy theater consumes the semantic theme. */
+:root[data-theme="dark"],
+:root[data-theme="light"] {
+  --bg-main: var(--kimap-canvas);
+  --bg-panel: var(--kimap-surface-raised);
+  --bg-hover: var(--kimap-control-hover);
+  --text-main: var(--kimap-text);
+  --text-muted: var(--kimap-text-muted);
+  --text-highlight: var(--kimap-text-strong);
+  --border-main: var(--kimap-border-strong);
+  --border-sub: var(--kimap-border);
+  --accent-color: var(--kimap-accent);
+  --pico-background-color: var(--kimap-canvas);
+  --pico-color: var(--kimap-text);
+  --pico-muted-color: var(--kimap-text-muted);
+  --pico-muted-border-color: var(--kimap-border);
+  --pico-primary: var(--kimap-accent);
+  --pico-primary-background: var(--kimap-accent);
+  --pico-primary-border: var(--kimap-accent);
+  --pico-primary-underline: color-mix(in srgb, var(--kimap-accent) 55%, transparent);
+  --pico-primary-hover: var(--kimap-accent-strong);
+  --pico-primary-hover-background: var(--kimap-accent-strong);
+  --pico-primary-hover-border: var(--kimap-accent-strong);
+  --pico-primary-focus: color-mix(in srgb, var(--kimap-focus) 28%, transparent);
+  --pico-primary-inverse: var(--kimap-accent-contrast);
+  --pico-secondary-background: var(--kimap-control);
+  --pico-secondary-border: var(--kimap-border-strong);
+  --pico-secondary-hover-background: var(--kimap-control-hover);
+  --pico-secondary-hover-border: var(--kimap-accent);
+  --pico-contrast: var(--kimap-text-strong);
+  --pico-contrast-background: var(--kimap-control);
+  --pico-contrast-border: var(--kimap-border-strong);
+  --pico-card-background-color: var(--kimap-surface);
+  --pico-card-border-color: var(--kimap-border);
+  --pico-card-box-shadow: var(--kimap-shadow);
+  --pico-form-element-background-color: var(--kimap-input);
+  --pico-form-element-selected-background-color: var(--kimap-accent);
+  --pico-form-element-border-color: var(--kimap-border-strong);
+  --pico-form-element-color: var(--kimap-text);
+  --pico-form-element-placeholder-color: var(--kimap-text-muted);
+  --pico-form-element-active-background-color: var(--kimap-input);
+  --pico-form-element-active-border-color: var(--kimap-focus);
+  --pico-form-element-focus-color: color-mix(in srgb, var(--kimap-focus) 24%, transparent);
+  --pico-dropdown-background-color: var(--kimap-surface-raised);
+  --pico-dropdown-border-color: var(--kimap-border);
+  --pico-dropdown-color: var(--kimap-text);
+  --pico-dropdown-hover-background-color: var(--kimap-hover);
+  --pico-ins-color: var(--kimap-success);
+  --pico-ins-border: var(--kimap-success);
+  --pico-del-color: var(--kimap-danger);
+  --pico-del-border: var(--kimap-danger);
+}
+
+html,
+body,
+#app-container {
+  color: var(--kimap-text);
+  background: var(--kimap-canvas);
+}
+
+body {
+  accent-color: var(--kimap-accent);
+  scrollbar-color: var(--kimap-border-strong) transparent;
+}
+
+::selection {
+  color: var(--kimap-accent-contrast);
+  background: var(--kimap-accent);
+}
+
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--kimap-focus);
+  outline-offset: 2px;
+}
+
+.window-header {
+  border-bottom-color: var(--kimap-border);
+}
+
+.selection-status,
+.context-error {
+  color: var(--kimap-warning);
+  background: color-mix(in srgb, var(--kimap-warning) 14%, var(--kimap-surface));
+  border-color: var(--kimap-warning);
+}
+
+.selection-status[data-level="error"] {
+  color: #ffffff;
+  background: var(--kimap-danger-surface);
+  border-color: var(--kimap-danger);
+}
+
+.initialization-error-overlay {
+  background: var(--kimap-backdrop);
+}
+
+.initialization-error-card {
+  color: var(--kimap-text);
+  background: var(--kimap-surface-raised);
+  border-color: var(--kimap-danger);
+  box-shadow: var(--kimap-shadow);
+}
+
+.initialization-error-context {
+  color: var(--kimap-text-muted);
+}

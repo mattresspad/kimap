@@ -1,0 +1,119 @@
+/* --- Infamy Tracker Pane --- */
+
+#infamy-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* Three equal columns */
+    gap: 1rem;
+    height: 100%;
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.infamy-column {
+    background-color: var(--pico-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0.5rem;
+}
+
+.infamy-column h3 {
+    margin: 0 0 0.5rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--pico-muted-border-color);
+    font-size: 1.1em;
+    text-align: center;
+    color: var(--pico-contrast);
+}
+
+.infamy-list {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 5px;
+}
+
+/* --- Influence List Styling --- */
+.infamy-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.infamy-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    font-size: 0.9em;
+}
+
+.infamy-list .value { font-weight: bold; }
+.infamy-list .value-ally { color: var(--pico-ins-border); } /* Green */
+.infamy-list .value-enemy { color: var(--pico-del-border); } /* Red */
+
+/* --- Bounty Cards --- */
+.bounty-card {
+    background-color: var(--pico-card-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.bounty-card header {
+    font-weight: bold;
+    color: var(--pico-primary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.bounty-card footer {
+    margin-top: 0.5rem;
+    font-size: 0.8em;
+    color: var(--pico-muted-color);
+    font-style: italic;
+}
+
+/* --- Status Indicators (Shared) --- */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Spawn & Bounty Status Colors */
+.status-alive { background-color: #388e3c; } /* Green */
+.status-imprisoned { background-color: #fbc02d; } /* Yellow */
+.status-dead { background-color: #d32f2f; } /* Red */
+.status-stateless { background-color: #7b1fa2; } /* Purple */
+
+/* Spawn Logic Specifics */
+.status-default { background-color: #1976d2; } /* Blue */
+.status-active { background-color: #388e3c; }
+.status-potential { background-color: #fbc02d; }
+.status-eliminated { background-color: #d32f2f; }
+.status-distant { background-color: #7b1fa2; }
+
+/* Spawn Accordions */
+#infamy-spawn-list details {
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+}
+#infamy-spawn-list summary {
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 4px 0;
+}
+#infamy-spawn-list summary:hover {
+    color: var(--pico-primary);
+}

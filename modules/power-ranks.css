@@ -1,0 +1,323 @@
+/* --- Faction Power Ranks Pane --- */
+
+#pane-power-ranks {
+  container: power-ranks-pane / inline-size;
+  overflow: hidden;
+}
+
+#power-ranks-content {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 1rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: var(--kimap-text, var(--pico-color));
+  box-sizing: border-box;
+  scrollbar-gutter: stable;
+}
+
+.power-ranks-header,
+.power-rank-summary {
+  display: grid;
+  grid-template-columns: minmax(3.5rem, 0.55fr) minmax(9rem, 2.6fr) minmax(4.5rem, 0.7fr) minmax(
+      7rem,
+      1fr
+    );
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.power-ranks-header {
+  position: sticky;
+  z-index: 2;
+  top: -1rem;
+  min-height: 3rem;
+  padding: 0.65rem 1rem;
+  color: var(--kimap-text-strong, var(--pico-contrast));
+  font-weight: 700;
+  background: var(--kimap-surface-raised, var(--pico-card-background-color));
+  border: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+  box-shadow: var(--kimap-shadow-sm, none);
+}
+
+.power-ranks-list {
+  min-width: 0;
+}
+
+.power-rank-entry {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  background: var(--kimap-surface, var(--pico-background-color));
+  border: 0;
+  border-right: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+  border-bottom: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+  border-left: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+  border-radius: 0;
+}
+
+.power-rank-summary {
+  position: relative;
+  min-width: 0;
+  min-height: 3.25rem;
+  margin: 0;
+  padding: 0.65rem 2.25rem 0.65rem 1rem;
+  color: var(--kimap-text, var(--pico-color));
+  background: transparent;
+  cursor: pointer;
+  list-style: none;
+}
+
+.power-rank-summary::-webkit-details-marker {
+  display: none;
+}
+
+.power-rank-summary::marker {
+  content: "";
+}
+
+.power-rank-summary::after {
+  display: none;
+  background-image: none;
+  content: none;
+}
+
+.power-rank-summary__indicator {
+  position: absolute;
+  top: 50%;
+  right: 0.85rem;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  font-size: 1.25rem;
+  line-height: 1;
+  transform: translateY(-50%);
+  transition: transform 150ms ease;
+}
+
+.power-rank-entry[open] > .power-rank-summary .power-rank-summary__indicator {
+  transform: translateY(-50%) rotate(90deg);
+}
+
+.power-rank-summary:hover {
+  background: var(--kimap-accent-soft, transparent);
+}
+
+.power-rank-summary:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--kimap-focus, var(--pico-primary));
+  outline-offset: -2px;
+}
+
+.power-rank-summary__rank,
+.power-rank-summary__towns,
+.power-rank-summary__change {
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.power-rank-summary__faction {
+  min-width: 0;
+  color: var(--kimap-text-strong, var(--pico-contrast));
+  overflow-wrap: anywhere;
+}
+
+.power-rank-summary__change {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.6rem;
+}
+
+.power-rank-change.is-gained {
+  color: var(--kimap-success, var(--pico-ins-color));
+}
+
+.power-rank-change.is-lost {
+  color: var(--kimap-danger, var(--pico-del-color));
+}
+
+.power-rank-report {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.75rem;
+  overflow: hidden;
+  background: var(--kimap-surface-muted, var(--pico-card-background-color));
+  border-top: 1px solid var(--kimap-accent, var(--pico-primary));
+}
+
+.power-rank-report__section {
+  min-width: 0;
+  padding: 0.75rem;
+  overflow: hidden;
+  background: var(--kimap-surface-raised, var(--pico-card-background-color));
+  border: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+  border-radius: var(--pico-border-radius);
+}
+
+.power-rank-report__section > h3 {
+  margin: 0 0 0.35rem;
+  color: var(--kimap-accent, var(--pico-primary));
+  font-size: 1rem;
+}
+
+.power-rank-report__metric {
+  margin: 0 0 0.75rem;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  font-size: 0.86rem;
+}
+
+.power-rank-report__subheading {
+  margin: 0.75rem 0 0.25rem;
+  color: var(--kimap-text-strong, var(--pico-contrast));
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.power-rank-report__list,
+.power-rank-diagnostics__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.power-rank-report__list li::marker,
+.power-rank-diagnostics__list li::marker {
+  content: "";
+}
+
+.power-rank-report__item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 0.3rem 0;
+  text-align: left;
+  border-bottom: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+}
+
+.power-rank-report__item:last-child {
+  border-bottom: 0;
+}
+
+.power-rank-report__identity {
+  display: grid;
+  min-width: 0;
+}
+
+.power-rank-report__name {
+  color: var(--kimap-text, var(--pico-color));
+  overflow-wrap: anywhere;
+}
+
+.power-rank-report__id {
+  display: block;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  font-size: 0.72rem;
+  overflow-wrap: anywhere;
+}
+
+.power-rank-report__empty {
+  margin: 0;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  font-size: 0.86rem;
+}
+
+.power-rank-status {
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.power-rank-status.is-alive {
+  color: var(--kimap-success, var(--pico-ins-color));
+}
+
+.power-rank-status.is-imprisoned {
+  color: var(--kimap-warning, var(--pico-mark-color));
+}
+
+.power-rank-status.is-dead {
+  color: var(--kimap-danger, var(--pico-del-color));
+}
+
+.power-rank-status.is-unavailable {
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+}
+
+.power-rank-diagnostics {
+  margin: 1rem 0 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--kimap-surface, var(--pico-background-color));
+  border: 1px solid var(--kimap-warning, var(--pico-mark-color));
+  border-radius: var(--pico-border-radius);
+}
+
+.power-rank-diagnostics__summary {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  color: var(--kimap-warning, var(--pico-mark-color));
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.power-rank-diagnostics__intro {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  border-top: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+}
+
+.power-rank-diagnostics__list {
+  padding: 0 1rem 1rem;
+}
+
+.power-rank-diagnostics__item {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--kimap-border, var(--pico-muted-border-color));
+  overflow-wrap: anywhere;
+}
+
+.power-rank-diagnostics__item:last-child {
+  border-bottom: 0;
+}
+
+.power-rank-diagnostics__context {
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+  font-size: 0.8rem;
+}
+
+.power-rank-empty {
+  margin: 0;
+  padding: 1rem;
+  color: var(--kimap-text-muted, var(--pico-muted-color));
+}
+
+@container power-ranks-pane (max-width: 48rem) {
+  .power-ranks-header,
+  .power-rank-summary {
+    grid-template-columns: 3.5rem minmax(0, 1fr) minmax(4.5rem, auto);
+    gap: 0.35rem 0.65rem;
+  }
+
+  .power-ranks-header > :nth-child(4),
+  .power-rank-summary__change {
+    grid-column: 2 / 4;
+  }
+
+  .power-rank-report {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .power-rank-summary__indicator {
+    transition: none;
+  }
+}

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Faction Colors Widget regression</title>
+    <link rel="stylesheet" href="/dist/bundle.css" />
+    <style>
+      body {
+        margin: 0;
+        overflow: auto;
+      }
+      #fixture-tools {
+        display: flex;
+        gap: 8px;
+        padding: 4px;
+        align-items: center;
+        height: 54px;
+      }
+      #fixture-tools button {
+        width: auto;
+        margin: 0;
+        font-size: 12px;
+        padding: 4px;
+      }
+      #test-results {
+        font-size: 12px;
+        white-space: pre-wrap;
+        max-height: 50px;
+        overflow: auto;
+      }
+      #matrix-results {
+        white-space: pre-wrap;
+        font-size: 12px;
+        margin: 0;
+      }
+      #component-workspace {
+        position: relative;
+        width: 1000px;
+        height: 700px;
+        background: #707d7c;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: calc(100dvh - 54px);
+        border: 0;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fixture-tools" class="kimap-ui">
+      <button id="run-components">Run component checks</button>
+      <button id="run-checks">Run map checks</button>
+      <button id="run-matrix">Run layout matrix</button>
+      <button id="run-pans">Run pan checks</button>
+      <label
+        >Pan subject
+        <select id="pan-subject">
+          <option value="political">Political</option>
+          <option value="relations">Relations</option>
+          <option value="squadPresence">Squad Presence</option>
+        </select></label
+      >
+      <output id="test-results">Ready. Production CSS and real application integration.</output>
+    </div>
+    <pre id="matrix-results" hidden></pre>
+    <div id="component-workspace" hidden></div>
+    <iframe id="map" src="/" title="Local KiMap under test"></iframe>
+    <script type="module" src="./faction-colors-widget-fixture.js"></script>
+  </body>
+</html>

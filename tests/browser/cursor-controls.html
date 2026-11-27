@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cursor Controls browser regression</title>
+    <style>
+      body {
+        margin: 0;
+        font: 13px system-ui;
+      }
+      #fixture-tools {
+        height: 52px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-inline: 8px;
+      }
+      #test-results {
+        flex: 1;
+        overflow: auto;
+        height: 48px;
+        white-space: pre-wrap;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: calc(100dvh - 52px);
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fixture-tools">
+      <button id="run-checks" type="button">Run Cursor Controls checks</button>
+      <button id="run-matrix" type="button">Run placement matrix</button>
+      <button id="theme" type="button">Switch theme</button>
+      <label
+        >Map viewport
+        <select id="fixture-size">
+          <option value="auto">Fit browser</option>
+          <option value="1920x1080">1920 × 1080</option>
+          <option value="1366x768">1366 × 768</option>
+          <option value="1280x720">1280 × 720</option>
+          <option value="390x720">390 × 720</option>
+          <option value="960x360">960 × 360</option>
+        </select>
+      </label>
+      <output id="test-results"
+        >Real application and production styles; anonymous read-only data.</output
+      >
+    </div>
+    <iframe id="map" src="/" title="Local KiMap under test"></iframe>
+    <pre id="matrix-results" hidden></pre>
+    <script type="module" src="./cursor-controls-fixture.js"></script>
+  </body>
+</html>

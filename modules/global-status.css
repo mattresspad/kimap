@@ -1,0 +1,259 @@
+/* --- Global Status Pane --- */
+
+#pane-global-status {
+    container: global-status-pane / size;
+}
+
+#status-workspace {
+    display: grid;
+    grid-template-rows: minmax(15rem, 1fr) 14rem;
+    gap: 1rem;
+    height: 100%;
+    width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+/* --- Top Section: 3 Columns --- */
+#status-main-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.status-column {
+    background-color: var(--pico-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0.5rem;
+}
+
+.status-column h3 {
+    margin: 0 0 0.5rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--pico-muted-border-color);
+    font-size: 1.1em;
+    text-align: center;
+    color: var(--pico-contrast);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Lists */
+.status-list {
+    flex-grow: 1;
+    min-width: 0;
+    min-height: 0;
+    padding-right: 5px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.status-list p {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    margin: 0;
+    font-size: 0.9em;
+}
+
+/* Status Colors */
+.status-list .value-ally, .status-list .value-alive { color: var(--kimap-success, #4CAF50); font-weight: bold; }
+.status-list .value-enemy, .status-list .value-dead { color: var(--kimap-danger, #F44336); font-weight: bold; }
+.status-list .value-imprisoned { color: var(--kimap-warning, #FFC107); font-weight: bold; }
+.status-list .value-neutral { color: var(--kimap-accent, #FFD700); font-weight: bold; }
+.status-list .value-inactive { color: var(--pico-muted-color); font-weight: bold; }
+
+/* --- Bottom Section: Footer --- */
+#status-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+    gap: 1rem;
+    min-width: 0;
+    min-height: 0;
+    padding-top: 0.75rem;
+    overflow: hidden;
+    border-top: 1px solid var(--pico-muted-border-color);
+    box-sizing: border-box;
+}
+
+/* Log Container */
+#verbose-log-container {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    background-color: var(--pico-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    overflow: hidden;
+}
+
+#verbose-log-container .tab-header {
+    display: flex;
+    flex: 0 0 auto;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+    background-color: var(--pico-card-background-color);
+}
+
+#verbose-log-container .tab-button {
+    flex: 1;
+    min-height: 3rem;
+    margin: 0;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--pico-muted-color);
+    font-size: 0.9em;
+}
+#verbose-log-container .tab-button.active {
+    background-color: var(--pico-primary-focus);
+    color: var(--pico-color);
+    font-weight: bold;
+}
+
+#verbose-log-container .log-content {
+    display: none;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 0.5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.85em;
+}
+#verbose-log-container .log-content.active { display: block; }
+
+#verbose-log-readable p {
+    margin: 0 0 4px;
+    overflow-wrap: anywhere;
+    border-bottom: 1px solid var(--kimap-border, #333);
+}
+
+#verbose-log-raw pre {
+    margin: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+/* Controls */
+#export-controls-container {
+    display: grid;
+    grid-template-rows: auto repeat(3, 3rem);
+    align-content: center;
+    gap: 0.5rem;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    padding: 0.75rem;
+    overflow: hidden;
+    background-color: var(--pico-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    text-align: center;
+}
+
+#export-controls-container h4 {
+    margin: 0;
+    color: var(--pico-muted-color);
+    font-size: 1em;
+}
+
+.history-buttons {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    min-width: 0;
+    min-height: 0;
+}
+
+.history-button {
+    width: 100%;
+    min-width: 0;
+    height: 3rem;
+    min-height: 3rem;
+    margin: 0;
+    padding: 8px;
+    background-color: var(--kimap-control, #444);
+    color: var(--kimap-text, white);
+    border: 1px solid var(--kimap-border-strong, #666);
+    cursor: pointer;
+}
+.history-button:disabled { opacity: 0.5; cursor: not-allowed; }
+.history-button:hover:not(:disabled) { background-color: var(--kimap-control-hover, #555); }
+
+#export-controls-container > :is(.apply-button, .file-button) {
+    width: 100%;
+    min-width: 0;
+    height: 3rem;
+    min-height: 3rem;
+    margin: 0;
+    padding-block: 0.5rem;
+    box-sizing: border-box;
+}
+
+.apply-button {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--pico-primary);
+    color: var(--pico-primary-inverse);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.apply-button:hover { background-color: var(--pico-primary-hover); }
+
+@container global-status-pane (max-height: 30rem) {
+    #status-workspace {
+        grid-template-rows: 18rem 14rem;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+    }
+}
+
+@container global-status-pane (max-width: 48rem) {
+    #status-workspace {
+        grid-template-rows: minmax(18rem, auto) auto;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+    }
+
+    #status-footer {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: 14rem 14rem;
+        min-height: calc(29rem + 0.75rem);
+        overflow: visible;
+    }
+}
+
+@container global-status-pane (max-width: 36rem) {
+    #status-workspace {
+        grid-template-rows: max-content max-content;
+    }
+
+    #status-main-view {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(3, 16rem);
+        min-height: 50rem;
+        overflow: visible;
+    }
+}

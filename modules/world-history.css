@@ -1,0 +1,33 @@
+/* --- World History Pane --- */
+#world-history-content {
+    height: 100%;
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+    overflow: hidden; /* Container doesn't scroll, the log does */
+    display: flex;
+    flex-direction: column;
+}
+
+#world-history-log {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.history-entry {
+    background-color: var(--pico-background-color);
+    padding: 0.75rem;
+    border-left: 4px solid var(--pico-primary);
+    border-radius: 0 4px 4px 0;
+    line-height: 1.4;
+}
+.history-entry .timestamp {
+    display: block;
+    font-size: 0.75em;
+    color: var(--pico-muted-color);
+    margin-bottom: 0.25rem;
+}

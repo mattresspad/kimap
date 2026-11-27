@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Grid controls and Political Help regression</title>
+    <style>
+      body {
+        margin: 0;
+        font: 13px system-ui;
+      }
+      #fixture-tools {
+        height: 52px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-inline: 8px;
+      }
+      #test-results {
+        flex: 1;
+        overflow: auto;
+        height: 48px;
+        white-space: pre-wrap;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: calc(100dvh - 52px);
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fixture-tools">
+      <button id="run-checks" type="button">Run grid and Help checks</button>
+      <button id="theme" type="button">Switch theme</button>
+      <output id="test-results"
+        >Real local application, production styles, read-only vanilla data.</output
+      >
+    </div>
+    <iframe id="map" src="/" title="Local KiMap under test"></iframe>
+    <script type="module" src="./grid-political-help-fixture.js"></script>
+  </body>
+</html>

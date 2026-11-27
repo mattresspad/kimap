@@ -1,0 +1,4 @@
+KiMap's synchronous reader is adapted from Luna Paint's TGA codec.
+https://github.com/lunapaint/tga-codec
+Copyright (c) 2022 Daniel Imms. See LICENSE.
+The map relies on its bottom-up RGBA row order.

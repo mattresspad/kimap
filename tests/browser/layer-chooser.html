@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Layer chooser regression</title>
+    <style>
+      body {
+        margin: 0;
+        font: 13px system-ui;
+      }
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px;
+      }
+      iframe {
+        display: block;
+        width: 100%;
+        height: calc(100dvh - 75px);
+        border: 0;
+      }
+      pre {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <button id="run">Run chooser checks</button>
+      <button id="matrix">Run layout/theme matrix</button>
+      <button id="faults">Run raster failure checks</button>
+      <output id="status">Local application with read-only vanilla data.</output>
+    </header>
+    <iframe id="map" src="/" title="Local KiMap under test"></iframe>
+    <pre id="results"></pre>
+    <script type="module" src="./layer-chooser-fixture.js"></script>
+  </body>
+</html>
