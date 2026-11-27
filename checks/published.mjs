@@ -24,28 +24,32 @@ assert.equal(map.manifest.kenshiVersion, "1.0.68");
 const baselineKey = deriveBaselineKey(contract);
 assert.match(baselineKey, /^vanilla:[a-f0-9]{64}$/);
 
-// Validate the live, separately published landmark inventory without distributing it in Git.
-const [features, fog, whitelist] = await Promise.all(
-  ["features_refined", "fog_features_clean", "landmarks_whitelist"].map(async (name) => {
-    const response = await fetch(artwork + "/data/overlays/" + name + ".json", {
-      redirect: "error"
-    });
-    assert.equal(response.status, 200);
-    assert.equal(response.headers.get("x-kenshi-asset-source"), "r2");
-    return response.json();
-  })
-);
-const landmarks = createLandmarkCatalog({ features, fog, whitelist }).occurrences;
-assert.equal(landmarks.length, 27);
-assert.equal(landmarks.filter((row) => row.name === "Ancient Marker").length, 4);
-assert.equal(
-  landmarks.find((row) => row.name === "Satellite Wreckage")?.description,
-  "The Eye, fallen from the sky."
-);
+async function checkLandmarkResponses(page) {
+  const [features, fog, whitelist] = await Promise.all(
+    ["features_refined", "fog_features_clean", "landmarks_whitelist"].map(async (name) => {
+      const url = artwork + "/data/overlays/" + name + ".json";
+      const response = await page.waitForResponse((candidate) => {
+        const actual = new URL(candidate.url());
+        return actual.origin + actual.pathname === url;
+      }, { timeout: 45000 });
+      assert.equal(response.status(), 200, url);
+      assert.equal(response.headers()["x-kenshi-asset-source"], "r2", url);
+      return response.json();
+    })
+  );
+  const landmarks = createLandmarkCatalog({ features, fog, whitelist }).occurrences;
+  assert.equal(landmarks.length, 27);
+  assert.equal(landmarks.filter((row) => row.name === "Ancient Marker").length, 4);
+  assert.equal(
+    landmarks.find((row) => row.name === "Satellite Wreckage")?.description,
+    "The Eye, fallen from the sky."
+  );
+  console.log("Verified all three browser-loaded landmark files.");
+}
 
 const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || undefined });
 try {
-  async function coldPage(url, check) {
+  async function coldPage(url, check, observeResponses) {
     const ctx = await browser.newContext({
       viewport: { width: 1600, height: 960 },
       serviceWorkers: "block"
@@ -77,7 +81,10 @@ try {
       });
     });
     try {
-      const navigation = await page.goto(url, { waitUntil: "domcontentloaded" });
+      const [, navigation] = await Promise.all([
+        observeResponses?.(page),
+        page.goto(url, { waitUntil: "domcontentloaded" })
+      ]);
       assert.match(
         navigation.headers()["cache-control"],
         /no-transform/,
@@ -248,7 +255,7 @@ try {
       await group.locator("summary").first().click();
   }
 
-  const shared = await coldPage(origin + "/", checkReader);
+  const shared = await coldPage(origin + "/", checkReader, checkLandmarkResponses);
   await coldPage(shared, async (page) => {
     await page
       .locator('#map-workspace[data-map-ready="true"]')
