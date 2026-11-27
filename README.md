@@ -35,7 +35,7 @@ KiMap bundles Alpine, Pico, Leaflet, D3, the TGA reader and the Exo 2 font into 
 
 Maintainers can also run the private full-data rehearsal from kim-data-store with npm run seed and npm run preview. Set KIMAP_DIR to this checkout, KIM_ART_SOURCE_DIR to the artwork mirror and VANILLA_ZIP to the pinned archive. That workflow also needs the private kim-worker checkout. Only the public repository owns the serving Worker and shell release.
 
-See the [shell release and recovery guide](docs/releases.md) for version previews, production approval and rollback.
+Follow the [PowerShell maintainer walkthrough](docs/releases.md) to test a change locally, review its Vanilla preview, approve production and verify the live map.
 
 ## Licensing
 
