@@ -6,6 +6,7 @@ on:
       - '.github/workflows/release.yml'
       - 'checks/release.mjs'
       - 'docs/releases.md'
+      - 'README.md'
   workflow_dispatch:
     inputs:
       expected_sha:

@@ -1,18 +1,80 @@
 # Shell releases
 
-Open a pull request against main. **Build, test and preview** runs the local survey on desktop and phone, exercises the app, and checks the Cloudflare package. That job needs no account credentials.
+Make map and serving Worker changes in your public KiMap checkout. The PowerShell examples below start in its repository root and use Node 24.22.2.
 
-After merge, [Preview and publish map](https://github.com/mattresspad/kimap/actions/workflows/release.yml) builds the final commit, records the current deployment and recovery version, uploads the prebuilt package as an inactive version of kim-data-store, and verifies its shell bytes, Vanilla bootstrap, representative dataset and artwork response. GitHub runs the survey fixture on desktop and phone. The run summary links to the exact inactive version and gives the local Vanilla check command.
+## 1. Test a change locally
 
-Before approval, use a local checkout at the commit shown in the summary. Run `npm ci` and install Chromium with `npm exec -- playwright install chromium`, or select an installed browser with `PLAYWRIGHT_CHANNEL`. Run the summary’s `node checks/published.mjs <version-url>` command. It checks the real Vanilla map, landmark files, and desktop and phone interactions. A nonzero exit leaves the candidate pending investigation.
+Choose a descriptive branch name in place of `my-map-change`.
 
-After the local check exits successfully for that exact candidate, Prd can select **Review deployments**, choose **production**, and approve. Promotion checks main, the package annotation, the previous deployment and the Vanilla publication again. It assigns traffic to the tested version and confirms through the Cloudflare API that the approved Worker version receives 100% of traffic. The production receipt records the observed deployment ID and percentages. A changed branch, changed publication or intervening deployment requires a new preview.
+```powershell
+git switch main
+git pull --ff-only
+git switch -c my-map-change
+npm ci
+npm run dev
+```
 
-After promotion, download and extract the map-live artifact. From a checkout with the browser checks installed, run `node checks/release.mjs verify-live <path-to-production.json>`. It compares live shell and Vanilla publication hashes with the preview receipt and runs the full live desktop and phone checks.
+Open the loopback URL printed by the dev server. Search for **Survey Station** to try the sample map. Restart the server after source edits. When you're ready to check the change, press **Ctrl+C**.
 
-To recheck traffic without deploying, manually run the release workflow on main with the deployed commit SHA and its production run ID. Changes limited to this workflow, its release script, or this guide run CI without starting a shell release.
+## 2. Run checks and open a pull request
 
-The repository uses the Actions secret CLOUDFLARE_API_TOKEN for Worker version and deployment operations and the variable CLOUDFLARE_ACCOUNT_ID for account selection. The production environment is restricted to protected branches and requires mattresspad. The generic workers.dev address serves the active map. Only the version-specific URL in the receipt identifies the tested candidate.
+```powershell
+npm run check
+$env:PLAYWRIGHT_CHANNEL = "msedge"
+npm run test:browser
+```
+
+These commands use Microsoft Edge for the desktop and phone checks. To use Playwright's Chromium instead, leave `PLAYWRIGHT_CHANNEL` unset and run `npm exec -- playwright install chromium`. The browser setting lasts for the current PowerShell session.
+
+Review your diff, stage and commit the intended files, then push your branch:
+
+```powershell
+git push -u origin HEAD
+```
+
+Open a pull request against `main`. The **Build, test and preview** check also builds and validates the Cloudflare package. Merge when the required check passes.
+
+## 3. Check the exact Vanilla preview
+
+After a map change merges, GitHub builds the merged commit and uploads an inactive version of `kim-data-store`. It verifies the shell bytes, Vanilla bootstrap, a representative dataset and an artwork response. Open the run for your commit in [Preview and publish map](https://github.com/mattresspad/kimap/actions/workflows/release.yml).
+
+```powershell
+git switch main
+git pull --ff-only
+git rev-parse HEAD
+```
+
+Compare the printed SHA with the commit in the run summary. If another change has merged, use the release run for the new head of `main`. From the matching checkout, run:
+
+```powershell
+npm ci
+$env:PLAYWRIGHT_CHANNEL = "msedge"
+$previewUrl = Read-Host "Paste the exact version URL from the GitHub run summary"
+node checks/published.mjs $previewUrl
+```
+
+You can also copy the complete `node checks/published.mjs` command from the summary. This checks the full Vanilla map, including the three landmark files, desktop interactions and phone search. Open the same version URL to try your change. If the command fails, leave approval pending while you investigate.
+
+## 4. Approve production
+
+Once the local checks pass and the preview looks right, Prd (`mattresspad`) selects **Review deployments → production → Approve and deploy** in that run. GitHub rechecks the commit, package annotation, previous deployment and Vanilla publication, promotes the reviewed version, and confirms through Cloudflare that it receives 100% of traffic. A changed branch, changed publication or intervening deployment requires a fresh preview.
+
+## 5. Check the live map
+
+Download the **map-live-…** artifact from the same run and extract it. In your checkout, run:
+
+```powershell
+$receiptPath = Read-Host "Paste the full path to the extracted production.json"
+node checks/release.mjs verify-live "$receiptPath"
+```
+
+The command compares the live shell and Vanilla publication with the approved receipt, then runs the desktop and phone checks against [the live map](https://map.kenshi.wiki/).
+
+## Release configuration
+
+The repository uses the Actions secret `CLOUDFLARE_API_TOKEN` and the variable `CLOUDFLARE_ACCOUNT_ID`. The production environment requires a protected branch and review by `mattresspad`.
+
+To recheck traffic without deploying, manually run the release workflow on `main` with the deployed commit SHA and its production run ID. Changes limited to the README, this guide, the release workflow or its release script run CI without starting a shell release.
 
 ## Recovery
 
