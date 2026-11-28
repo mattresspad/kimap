@@ -164,7 +164,7 @@ test("shell disclosures and Quick Search expose complete button and combobox sem
 test("wide and compact ecosystem routes use the exact same-tab destinations", () => {
   const destinations = [
     "https://kenshi.wiki/",
-    "https://talk.kenshi.wiki/",
+    "https://kim-assets.kenshi.wiki/",
     "https://kenshidb.wiki/",
     "https://web-fcs.kenshi.wiki/"
   ];
@@ -189,7 +189,6 @@ test("wide and compact ecosystem routes use the exact same-tab destinations", ()
 test("branded ecosystem icons use verified Worker masks while functional glyphs stay inline", () => {
   const brandedIcons = {
     wiki: "wiki-icon.svg",
-    forums: "chat-icon.svg",
     database: "database-icon.svg"
   };
 

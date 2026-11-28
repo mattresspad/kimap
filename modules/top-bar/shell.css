@@ -134,10 +134,6 @@
   --kimap-ecosystem-mask: url("kim-asset:/icons/ecosystem/wiki-icon.svg?v=2026-07-13-1");
 }
 
-.kimap-ecosystem-icon--forums {
-  --kimap-ecosystem-mask: url("kim-asset:/icons/ecosystem/chat-icon.svg?v=2026-07-13-1");
-}
-
 .kimap-ecosystem-icon--database {
   --kimap-ecosystem-mask: url("kim-asset:/icons/ecosystem/database-icon.svg?v=2026-07-13-1");
 }
